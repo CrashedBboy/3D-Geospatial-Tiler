@@ -3,6 +3,8 @@
 import bpy
 import os
 
-obj_path = "C:\\Users\\CrashedBboy\\Downloads\\blender-project\\model\\wulin_model_m100\\wulin.obj"
+obj = "../../models/mountain/mountain.obj"
 
-bpy.ops.import_scene.obj(filepath = obj_path)
+obj_abs_path = os.path.abspath(os.path.join(__file__, obj))
+
+bpy.ops.import_scene.obj(filepath = obj_abs_path)
