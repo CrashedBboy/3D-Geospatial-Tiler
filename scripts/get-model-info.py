@@ -13,6 +13,8 @@ UV_SIZE = 8 # float(32) x 2
 COLOR_SIZE = 16 # float(32) x 4(RGBA)
 TANGENT_SZIE = 16 # float(32) x 4(XYZW)
 
+LEVEL_MAX = 5
+
 vertices_count = 0
 polygons_count = 0
 uv_count = 0
@@ -53,5 +55,8 @@ level = math.ceil(math.log(total_size_mb, 4))
 
 if (level < 0):
     level = 0
+
+if (level > LEVEL_MAX):
+    level = LEVEL_MAX
 
 print("proper tiling level: \n", str(level))
