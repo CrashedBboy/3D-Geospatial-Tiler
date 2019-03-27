@@ -3,6 +3,15 @@
 
 import bpy
 import os
+import math
+
+# attribute size per element(vertex/polygon) in bytes
+VERTEX_SIZE = 12 # float(32) x 3
+POLYGON_SIZE = 12 # int(32) x 3
+NORMAL_SIZE = 12 # float(32) x 3
+UV_SIZE = 8 # float(32) x 2
+COLOR_SIZE = 16 # float(32) x 4(RGBA)
+TANGENT_SZIE = 16 # float(32) x 4(XYZW)
 
 vertices_count = 0
 polygons_count = 0
@@ -10,11 +19,11 @@ uv_count = 0
 
 textures = []
 textures_size = 0 # in bytes
+geometry_size = None # in bytes
 
 for obj in bpy.data.objects:
     vertices_count += len(obj.data.vertices)
     polygons_count += len(obj.data.polygons)
-
     for uv_map in obj.data.uv_layers:
         uv_count += len(uv_map.data)
 
@@ -30,4 +39,19 @@ for image in bpy.data.images:
 
 print("all textures: \n", str(textures))
 print("total texture size(bytes): \n", str(textures_size))
-    
+
+geometry_size = vertices_count * (VERTEX_SIZE + TANGENT_SZIE + COLOR_SIZE) + \
+    polygons_count * POLYGON_SIZE + \
+    polygons_count * 3 * NORMAL_SIZE + \
+    uv_count * UV_SIZE 
+
+print("expected geometry size: \n", str(geometry_size))
+
+# calculate tiling level
+total_size_mb = (textures_size + geometry_size) / (1024*1024)
+level = math.ceil(math.log(total_size_mb, 4))
+
+if (level < 0):
+    level = 0
+
+print("proper tiling level: \n", str(level))
