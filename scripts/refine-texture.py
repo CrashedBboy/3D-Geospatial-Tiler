@@ -3,7 +3,7 @@ from PIL import Image, ImageDraw
 import os
 import json
 
-UV_MAP = '../models/mountain-gltf/tile2/uv_coord.json'
+UV_MAP = '../models/wood_house-gltf/uv_coord.json'
 IMG_QUALITY = 25
 
 abs_uv_map = os.path.abspath(UV_MAP)
@@ -13,7 +13,7 @@ with open(abs_uv_map) as file:
 
     img_corresponding = []
 
-    for map in maps['maps']:
+    for idx, map in enumerate(maps['maps']):
 
         if map['image']['mimeType'] != 'image/jpeg' and map['image']['mimeType'] != 'image/png':
             print('only allow texture images in JPEG/PNG format')
@@ -31,14 +31,15 @@ with open(abs_uv_map) as file:
         # create new image ("1-bit pixels, black and white", (width, height), "default color")
         mask_img = Image.new('1', (img_width, img_height), 0)
 
-        # set uv polygon area in array as 1
+        # set uv polygon area in mask matrix to 1
         for id, face_uv in enumerate(map['faceUvs']):
             polygon = []
             for uv in face_uv:
                 if uv:
                     polygon.append( ( round(uv[0] * img_width), round(uv[1] * img_height) ) )
-            if len(polygon) >= 3:
+            if len(polygon) >= 2:
                 ImageDraw.Draw(mask_img).polygon(polygon, outline=1, fill=1)
+                mask = numpy.array(mask_img)
         
         mask = numpy.array(mask_img)
 

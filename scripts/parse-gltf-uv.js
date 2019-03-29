@@ -3,7 +3,7 @@ const path = require('path')
 
 const VERTEX_PER_FACE = 3;
 
-const GLTF_PATH = '../models/mountain-gltf/tile4/model.gltf';
+const GLTF_PATH = '../models/wood_house-gltf/model.gltf';
 
 let absoluteGltfPath = path.resolve(path.join(__dirname, GLTF_PATH));
 
@@ -34,6 +34,7 @@ gltf.scenes[gltf.scene].nodes.forEach((nodeIndex) => {
             if (primitiveMaterial.pbrMetallicRoughness.baseColorTexture) {
                 primitiveUVMaps.push({
                     uvAccessor: gltf.accessors[primitive.attributes["TEXCOORD_" + primitiveMaterial.pbrMetallicRoughness.baseColorTexture.texCoord]],
+                    indexAccessor: gltf.accessors[primitive.indices],
                     image: gltf.images[gltf.textures[primitiveMaterial.pbrMetallicRoughness.baseColorTexture.index].source]
                 });
             }
@@ -41,6 +42,7 @@ gltf.scenes[gltf.scene].nodes.forEach((nodeIndex) => {
             if (primitiveMaterial.pbrMetallicRoughness.metallicRoughnessTexture) {
                 primitiveUVMaps.push({
                     uvAccessor: gltf.accessors[primitive.attributes["TEXCOORD_" + primitiveMaterial.pbrMetallicRoughness.metallicRoughnessTexture.texCoord]],
+                    indexAccessor: gltf.accessors[primitive.indices],
                     image: gltf.images[gltf.textures[primitiveMaterial.pbrMetallicRoughness.metallicRoughnessTexture.index].source]
                 });
             }
@@ -49,6 +51,7 @@ gltf.scenes[gltf.scene].nodes.forEach((nodeIndex) => {
         if (primitiveMaterial.normalTexture) {
             primitiveUVMaps.push({
                 uvAccessor: gltf.accessors[primitive.attributes["TEXCOORD_" + primitiveMaterial.normalTexture.texCoord]],
+                indexAccessor: gltf.accessors[primitive.indices],
                 image: gltf.images[gltf.textures[primitiveMaterial.normalTexture.index].source]
             });
         }
@@ -56,6 +59,7 @@ gltf.scenes[gltf.scene].nodes.forEach((nodeIndex) => {
         if (primitiveMaterial.occlusionTexture) {
             primitiveUVMaps.push({
                 uvAccessor: gltf.accessors[primitive.attributes["TEXCOORD_" + primitiveMaterial.occlusionTexture.texCoord]],
+                indexAccessor: gltf.accessors[primitive.indices],
                 image: gltf.images[gltf.textures[primitiveMaterial.occlusionTexture.index].source]
             });
         }
@@ -63,6 +67,7 @@ gltf.scenes[gltf.scene].nodes.forEach((nodeIndex) => {
         if (primitiveMaterial.emissiveTexture) {
             primitiveUVMaps.push({
                 uvAccessor: gltf.accessors[primitive.attributes["TEXCOORD_" + primitiveMaterial.emissiveTexture.texCoord]],
+                indexAccessor: gltf.accessors[primitive.indices],
                 image: gltf.images[gltf.textures[primitiveMaterial.emissiveTexture.index].source]
             });
         }
@@ -78,10 +83,14 @@ if (primitiveUVMaps.length == 0) {
 
 primitiveUVMaps.forEach((map) => {
     let mapBufferView = gltf.bufferViews[map.uvAccessor.bufferView];
+    let indexBufferView = gltf.bufferViews[map.indexAccessor.bufferView];
 
-    let bufferPath = path.resolve( path.join(path.dirname(absoluteGltfPath), gltf.buffers[mapBufferView.buffer].uri) );
+    let uvBufferPath = path.resolve( path.join(path.dirname(absoluteGltfPath), gltf.buffers[mapBufferView.buffer].uri) );
 
-    let geometryBuffer = fs.readFileSync(bufferPath);
+    let uvBuffer = fs.readFileSync(uvBufferPath);
+
+    let indexBufferPath = path.resolve( path.join(path.dirname(absoluteGltfPath), gltf.buffers[indexBufferView.buffer].uri) );
+    let indexBuffer = fs.readFileSync(indexBufferPath);
 
     // assume that all elements in uv maps are VEC2 : 5126 (FLOAT)
     if (map.uvAccessor.componentType != 5126 || map.uvAccessor.type != "VEC2") {
@@ -89,20 +98,44 @@ primitiveUVMaps.forEach((map) => {
         return;
     }
 
-    uvs = new Array();
+    let uvs = new Array();
 
     for (let i = 0; i < map.uvAccessor.count; i++) {
-        let u = geometryBuffer.readFloatLE(mapBufferView.byteOffset + 2*i*4);
-        let v = geometryBuffer.readFloatLE(mapBufferView.byteOffset + 2*(i+1)*4);
+        let u = uvBuffer.readFloatLE(mapBufferView.byteOffset + 2*i*4);
+        let v = uvBuffer.readFloatLE(mapBufferView.byteOffset + (2*i+1)*4);
         uvs.push([u, v]);
     }
 
-    faceUvs = new Array();
-    for (let i = 0; i < (uvs.length / VERTEX_PER_FACE); i++) {
-        faceUvs.push([uvs[3*i], uvs[3*i+1], uvs[3*i+2]]);
+    let indices = new Array();
+    let bytePerIndex = 2;
+
+    if (map.indexAccessor.componentType == 5121) { // UNSIGNED_BYTE
+        bytePerIndex = 1;
+    } else if (map.indexAccessor.componentType == 5123) { // UNSIGNED_SHORT
+        bytePerIndex = 2;
+    } else if (map.indexAccessor.componentType == 5125) { // UNSIGNED_INT
+        bytePerIndex = 4;
+    } else {
+        return;
     }
 
-    console.log(faceUvs.length);
+    for (let i = 0; i < map.indexAccessor.count; i++) {
+        
+        if (bytePerIndex == 1) {
+            index = indexBuffer.readUInt8(indexBufferView.byteOffset + bytePerIndex * i);
+        } else if (bytePerIndex == 2) {
+            index = indexBuffer.readUInt16LE(indexBufferView.byteOffset + bytePerIndex * i);
+        } else {
+            index = indexBuffer.readUInt32LE(indexBufferView.byteOffset + bytePerIndex * i);
+        }
+        indices.push(index);
+    }
+
+    let faceUvs = new Array();
+
+    for (let i = 0; i < (indices.length/VERTEX_PER_FACE); i++) {
+        faceUvs.push([uvs[indices[VERTEX_PER_FACE*i]], uvs[indices[VERTEX_PER_FACE*i+1]], uvs[indices[VERTEX_PER_FACE*i+2]]]);
+    }
 
     output.maps.push({
         image: map.image,
