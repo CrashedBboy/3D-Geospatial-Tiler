@@ -1,7 +1,7 @@
 import numpy
 from PIL import Image, ImageDraw
 
-# read image as RGB and add alpha (transparency)
+# read image as RGB
 img = Image.open("crop.jpg").convert("RGB")
 
 # convert to numpy (for convenience)
@@ -19,7 +19,7 @@ mask = numpy.array(mask_img)
 # assemble new image (uint8: 0-255)
 new_img_array = numpy.empty(img_array.shape, dtype='uint8')
 
-# copy color values (three first columns, RGB)
+# copy color values (RGB)
 new_img_array[:,:,:3] = img_array[:,:,:3]
 
 # transparency (4th column)
