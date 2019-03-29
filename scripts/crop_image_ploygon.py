@@ -22,11 +22,11 @@ new_img_array = numpy.empty(img_array.shape, dtype='uint8')
 # copy color values (RGB)
 new_img_array[:,:,:3] = img_array[:,:,:3]
 
-# transparency (4th column)
+# filtering image by mask
 new_img_array[:,:,0] = new_img_array[:,:,0] * mask
 new_img_array[:,:,1] = new_img_array[:,:,1] * mask
 new_img_array[:,:,2] = new_img_array[:,:,2] * mask
 
 # back to Image from numpy
-newIm = Image.fromarray(new_img_array, "RGB")
-newIm.save("out.jpg")
+new_img = Image.fromarray(new_img_array, "RGB")
+new_img.save("out.jpg")
