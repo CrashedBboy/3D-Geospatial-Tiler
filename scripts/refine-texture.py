@@ -3,7 +3,7 @@ from PIL import Image, ImageDraw
 import os
 import json
 
-UV_MAP = '../models/wood_house-gltf/uv_coord.json'
+UV_MAP = '../models/mountain-gltf/tile2/uv_coord.json'
 IMG_QUALITY = 25
 
 abs_uv_map = os.path.abspath(UV_MAP)
@@ -21,7 +21,7 @@ with open(abs_uv_map) as file:
 
         abs_img_path = os.path.abspath( os.path.join(os.path.dirname(abs_uv_map), map['image']['uri']) )
         img_ext = map['image']['uri'].split('.')[-1]
-        img_basename = map['image']['name'].split('.' + img_ext)[0]
+        img_basename = map['image']['uri'].split('/')[-1].split('.' + img_ext)[0]
 
         # read image as RGB
         img = Image.open(abs_img_path).convert("RGB")
@@ -35,8 +35,10 @@ with open(abs_uv_map) as file:
         for id, face_uv in enumerate(map['faceUvs']):
             polygon = []
             for uv in face_uv:
-                polygon.append( ( round(uv[0] * img_width), round(uv[1] * img_height) ) )
-            ImageDraw.Draw(mask_img).polygon(polygon, outline=1, fill=1)
+                if uv:
+                    polygon.append( ( round(uv[0] * img_width), round(uv[1] * img_height) ) )
+            if len(polygon) >= 3:
+                ImageDraw.Draw(mask_img).polygon(polygon, outline=1, fill=1)
         
         mask = numpy.array(mask_img)
 
@@ -60,7 +62,7 @@ with open(abs_uv_map) as file:
         mask_img.close()
 
         # save old <--> new texture name mapping
-        img_corresponding.append({"old": map['image']['uri'], "new": map['image']['uri'].replace(img_basename, img_basename + '_refined')})
+        img_corresponding.append({"old": map['image']['uri'], "new": map['image']['uri'].replace(img_basename + '.' + img_ext, img_basename + '_refined.jpg')})
 
     abs_output_path = os.path.abspath( os.path.join(os.path.dirname(abs_uv_map), 'refined_texture_map.json') )
     with open(abs_output_path, 'w') as outfile:  
