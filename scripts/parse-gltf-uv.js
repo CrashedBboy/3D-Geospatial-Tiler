@@ -97,9 +97,16 @@ primitiveUVMaps.forEach((map) => {
         uvs.push([u, v]);
     }
 
+    faceUvs = new Array();
+    for (let i = 0; i < (uvs.length / VERTEX_PER_FACE); i++) {
+        faceUvs.push([uvs[3*i], uvs[3*i+1], uvs[3*i+2]]);
+    }
+
+    console.log(faceUvs.length);
+
     output.maps.push({
         image: map.image,
-        uvs: uvs
+        faceUvs: faceUvs
     });
 });
 
