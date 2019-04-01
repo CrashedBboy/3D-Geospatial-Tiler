@@ -93,3 +93,30 @@ def triangulate():
         modifier.keep_custom_normals = True
         # apply modifier
         bpy.ops.object.modifier_apply(apply_as='DATA', modifier=modifier_name)
+
+# export model in gltf format
+# note: Blender under version 2.8 does not support exporting gltf by default
+def export_gltf(filepath=None, format='GLTF_SEPARATE', copyright='', camera=False, selected=False, animation=False, light=False):
+    print("ACTION: export to GLTF")
+
+    if (filepath == None) or (not path.isdir(path.dirname(filepath))):
+        print("Invalid output path")
+        return False
+    else:
+        return bpy.ops.export_scene.gltf(
+            export_format = format, # 'GLB', 'GLTF_EMBEDDED', 'GLTF_SEPARATE'
+            export_copyright = copyright,
+            export_texcoords = True,
+            export_normals = True,
+            export_materials = True,
+            export_colors = True,
+            export_cameras = camera,
+            export_selected = selected,
+            export_extras = False,
+            export_yup = True,
+            export_apply = False,
+            export_animations = animation,
+            export_frame_range = animation,
+            export_lights = light,
+            filepath = filepath
+            )
