@@ -3,7 +3,7 @@ from PIL import Image, ImageDraw
 import os
 import json
 
-UV_MAP = '../models/wood_house-gltf/uv_coord.json'
+UV_MAP = '../models/mountain-gltf/tile1/uv_coord.json'
 IMG_QUALITY = 25
 
 abs_uv_map = os.path.abspath(UV_MAP)

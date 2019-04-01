@@ -3,7 +3,7 @@ const path = require('path')
 
 const VERTEX_PER_FACE = 3;
 
-const GLTF_PATH = '../models/wood_house-gltf/model.gltf';
+const GLTF_PATH = '../models/mountain-gltf/tile1/model.gltf';
 
 let absoluteGltfPath = path.resolve(path.join(__dirname, GLTF_PATH));
 
