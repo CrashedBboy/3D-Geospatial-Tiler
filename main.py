@@ -10,13 +10,12 @@ if not current_dir in sys.path:
 
 import bpy
 from os import path
-from funcs.clear_default import clear_default
-from funcs import import_model
+import funcs
 
 print("\n---------------------program started---------------------\n")
 
 # clear all default objects in the scene
-clear_default()
+funcs.clear_default()
 
 # import model (GLTF for example)
 # supported formats: OBJ, FBX, DAE, GLTF
@@ -30,16 +29,18 @@ import_result = None
 absolute_model_path = path.abspath( path.join(current_dir, IMPORT_MODEL) )
 
 if (IMPORT_FORMAT == 'GLTF'):
-    import_result = import_model.gltf(absolute_model_path)
+    import_result = funcs.import_gltf(absolute_model_path)
 elif (IMPORT_FORMAT == 'OBJ'):
-    import_result = import_model.obj(absolute_model_path)
+    import_result = funcs.import_obj(absolute_model_path)
 
 if import_result == None:
     exit()
 
 # join all objects into one
+funcs.join_all()
 
 # triangulate
+funcs.triangulate()
 
 # export model into GLTF format as root source
 

@@ -1,0 +1,95 @@
+import os.path as path
+import bpy
+
+# delete every object (including camera and light source) in the scene
+def clear_default():
+    print("ACTION: clear all default objects(cube, lamp, camera) in the scene.")
+    bpy.ops.object.select_all(action='SELECT')
+    bpy.ops.object.delete(use_global=True)
+
+# import GLTF model
+def import_gltf(filepath = None):
+    print("ACTION: import GLTF model")
+
+    if (filepath == None) or (not path.isfile(filepath)):
+        print("invalid filepath")
+        return False
+
+    else:
+        # data type "set" returned
+        return bpy.ops.import_scene.gltf(
+            filepath = filepath,
+            import_pack_images = True,
+            import_shading = 'NORMALS'
+            )
+
+# import OBJ model
+def import_obj(filepath = None):
+    print("ACTION: import OBJ model")
+
+    if (filepath == None) or (not path.isfile(filepath)):
+        print("invalid filepath")
+        return False
+    else:
+        # data type "set" returned
+        return bpy.ops.import_scene.obj(
+            filepath = filepath,
+            use_edges = True,
+            use_smooth_groups = True,
+            use_split_objects = True,
+            use_split_groups = False,
+            use_groups_as_vgroups = False,
+            use_image_search = True,
+            split_mode = 'ON',
+            global_clight_size = 0.0,
+            axis_forward = '-Z',
+            axis_up = 'Y'
+            )
+
+# join all object into one
+def join_all():
+    print("ACTION: join all object into one")
+
+    active_set = False
+
+    bpy.ops.object.select_all(action='DESELECT')
+
+    # looking for mesh objects
+    print("finding mesh objects...")
+    for i, obj in enumerate(bpy.data.objects):
+        if obj.type == "MESH":
+            # set first mesh object as active object
+            if not active_set:
+                active_set = True
+                bpy.context.view_layer.objects.active = obj
+            obj.select_set(True)
+
+    print(str(len(bpy.context.selected_objects)), "mesh object(s) found, join them together")
+
+    # if more than one mesh object found, join them together
+    if active_set and len(bpy.context.selected_objects) >= 2:
+        bpy.ops.object.join()
+
+# triangulate meshes (e.g. 1 square -> 2 triangles)
+def triangulate():
+    print("ACTION: triangulate meshes")
+
+    mode = 'TRIANGULATE'
+    modifier_name = 'triangulator'
+
+    objects = bpy.data.objects
+    meshes = []
+
+    for obj in objects:
+        if obj.type == "MESH":
+            meshes.append(obj)
+
+    for obj in meshes:
+        # set it as active object
+        bpy.context.view_layer.objects.active = obj
+        # create modifier
+        modifier = obj.modifiers.new(modifier_name, mode)
+        modifier.quad_method = 'FIXED'
+        modifier.keep_custom_normals = True
+        # apply modifier
+        bpy.ops.object.modifier_apply(apply_as='DATA', modifier=modifier_name)
