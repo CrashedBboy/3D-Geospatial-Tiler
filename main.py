@@ -75,9 +75,13 @@ print("generate each level's tile")
 for l in range(0, level+1):
     print("tiling model level", l)
 
+    # clear all objects/uv_maps/images
+    funcs.clear_all()
+
     # decimate mesh
     decimate_percentage = funcs.get_decimate_percentage(l, level)
     print("decimate mesh to", str(decimate_percentage)+"%")
+
 
 # split mesh object into 2 x 2 sub-mesh
 

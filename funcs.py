@@ -157,3 +157,7 @@ def get_decimate_percentage(current_level, total_level):
         percentage = MINIMUM
     
     return percentage
+
+# clear all loaded objects (load empty blender template)
+def clear_all():
+    bpy.ops.wm.read_homefile(use_empty=True)
