@@ -17,10 +17,10 @@
             "mesh" : 0,
             "name" : "obj_0",
             "rotation" : [
-                0.7071068286895752,
+                -0.7071065902709961,
                 0,
                 0,
-                0.7071067094802856
+                0.7071069478988647
             ]
         }
     ],
@@ -60,72 +60,72 @@
     ],
     "images" : [
         {
-            "mimeType" : "image/jpeg",
-            "name" : "tile_0_0_0_tex_tex0.jpg",
-            "uri" : "tile_0_0_0_tex_tex0.jpg"
+            "mimeType" : "image/png",
+            "name" : "Image_0",
+            "uri" : "Image_0.png"
         }
     ],
     "accessors" : [
         {
             "bufferView" : 0,
             "componentType" : 5126,
-            "count" : 4582,
+            "count" : 3249,
             "max" : [
                 3.380121946334839,
-                3.793303966522217,
-                0.6985570192337036
+                4.780837059020996,
+                2.468518018722534
             ],
             "min" : [
                 -4.183773994445801,
-                -4.780837059020996,
-                -2.468518018722534
+                -3.793303966522217,
+                -0.6985570192337036
             ],
             "type" : "VEC3"
         },
         {
             "bufferView" : 1,
             "componentType" : 5126,
-            "count" : 4582,
+            "count" : 3249,
             "type" : "VEC3"
         },
         {
             "bufferView" : 2,
             "componentType" : 5126,
-            "count" : 4582,
+            "count" : 3249,
             "type" : "VEC2"
         },
         {
             "bufferView" : 3,
             "componentType" : 5123,
-            "count" : 4596,
+            "count" : 3249,
             "type" : "SCALAR"
         }
     ],
     "bufferViews" : [
         {
             "buffer" : 0,
-            "byteLength" : 54984,
+            "byteLength" : 38988,
             "byteOffset" : 0
         },
         {
             "buffer" : 0,
-            "byteLength" : 54984,
-            "byteOffset" : 54984
+            "byteLength" : 38988,
+            "byteOffset" : 38988
         },
         {
             "buffer" : 0,
-            "byteLength" : 36656,
-            "byteOffset" : 109968
+            "byteLength" : 25992,
+            "byteOffset" : 77976
         },
         {
             "buffer" : 0,
-            "byteLength" : 9192,
-            "byteOffset" : 146624
+            "byteLength" : 6498,
+            "byteOffset" : 103968
         }
     ],
     "buffers" : [
         {
-            "byteLength" : 155816,
+            "byteLength" : 110468,
             "uri" : "model.bin"
         }
     ]

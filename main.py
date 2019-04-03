@@ -25,9 +25,16 @@ IMPORT_FORMAT = 'GLTF'
 # IMPORT_MODEL = './models/mountain/mountain.obj'
 # IMPORT_FORMAT = 'OBJ'
 
-EXPORT_DIR = './exported/mountain'
+EXPORT_DIR = './export/mountain'
 
 absolute_model_path = path.abspath( path.join(current_dir, IMPORT_MODEL) )
+
+absolute_export_directory = path.abspath( path.join(current_dir, EXPORT_DIR) )
+
+# create direcotry for exporting
+os.makedirs(absolute_export_directory, exist_ok=True)
+os.makedirs(path.join(absolute_export_directory, 'gltf'), exist_ok=True)
+os.makedirs(path.join(absolute_export_directory, '3dtiles'), exist_ok=True)
 
 import_result = False
 if (IMPORT_FORMAT == 'GLTF'):
@@ -51,7 +58,7 @@ EXPORT_ANIMATION = False
 EXPORT_LIGHT = False
 EXPORT_CAMERA = False
 
-root_model_path = path.join(path.dirname(absolute_model_path), 'root.glb')
+root_model_path = path.join(absolute_export_directory, 'root.glb')
 
 export_result = funcs.export_gltf(
     filepath=root_model_path,
@@ -71,8 +78,6 @@ level = funcs.get_proper_level(root_model_path)
 
 if (level == None):
     exit()
-
-level = 2
 
 all_level_tiles = []
 
@@ -99,8 +104,23 @@ for l in range(0, level+1):
     all_level_tiles.append(tiles)
 
     # export
+    for tile in tiles:
 
-print(all_level_tiles)
+        mesh = bpy.data.objects[tile["name"]]
+        export_name = 'tile_' + str(tile["level"]) + "_" + str(tile["x"]) + "_" + str(tile["y"])
+
+        # set export destination
+        tile_dir = path.join(absolute_export_directory, 'gltf', export_name)
+        tile_path = path.join(tile_dir, 'model.gltf')
+        os.makedirs(tile_dir, exist_ok=True)
+
+        # deselect all
+        bpy.ops.object.select_all(action='DESELECT')
+        mesh.select_set(True)
+
+        # export
+        funcs.export_gltf(filepath=tile_path, format='GLTF_SEPARATE', selected=True)
+
 
 # refine & compress texture images
 
