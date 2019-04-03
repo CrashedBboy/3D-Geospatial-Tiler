@@ -78,10 +78,16 @@ for l in range(0, level+1):
     # clear all objects/uv_maps/images
     funcs.clear_all()
 
+    # reload the root model
+    funcs.import_gltf(root_model_path)
+    root_object = bpy.data.objects[0]
+
     # decimate mesh
     decimate_percentage = funcs.get_decimate_percentage(l, level)
-    print("decimate mesh to", str(decimate_percentage)+"%")
+    print("decimate mesh to", str(decimate_percentage*100)+"%")
+    funcs.mesh_decimate(root_object, decimate_percentage)
 
+    
 
 # split mesh object into 2 x 2 sub-mesh
 

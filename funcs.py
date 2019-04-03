@@ -151,7 +151,7 @@ def get_decimate_percentage(current_level, total_level):
     DECIMATE_LEVEL_RATIO = 1.414 # square root of 2
     MINIMUM = 0.2
 
-    percentage = 100/DECIMATE_LEVEL_RATIO**(total_level - current_level)
+    percentage = 1/DECIMATE_LEVEL_RATIO**(total_level - current_level)
 
     if percentage < MINIMUM:
         percentage = MINIMUM
@@ -161,3 +161,20 @@ def get_decimate_percentage(current_level, total_level):
 # clear all loaded objects (load empty blender template)
 def clear_all():
     bpy.ops.wm.read_homefile(use_empty=True)
+
+# reduce number of meshes in 3d model
+def mesh_decimate(target = None, ratio):
+    print("ACTION: decimate mesh to", str(ratio*100)+"%")
+
+    MODE = 'DECIMATE'
+    MODIFIER_NAME = 'decimator'
+
+    if target.type != "MESH":
+        print("target object is no MESH type")
+    else:
+        bpy.context.view_layer.objects.active = target
+        modifier = target.modifiers.new(MODIFIER_NAME, MODE)
+        modifier.decimate_type = 'COLLAPSE'
+        modifier.ratio = ratio
+        modifier.use_collapse_triangulate = True
+        bpy.ops.object.modifier_apply(apply_as='DATA', modifier=MODIFIER_NAME)
