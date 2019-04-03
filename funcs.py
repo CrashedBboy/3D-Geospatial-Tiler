@@ -359,4 +359,5 @@ def tile_model(root_object, target_level, total_level):
         # pop the first in queue
         tile_queue.pop(0)
 
+    bpy.ops.object.mode_set(mode='OBJECT')
     return tile_queue

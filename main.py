@@ -10,6 +10,7 @@ if not current_dir in sys.path:
 
 import bpy
 from os import path
+import json
 import funcs
 
 print("\n---------------------program started---------------------\n")
@@ -79,7 +80,7 @@ level = funcs.get_proper_level(root_model_path)
 if (level == None):
     exit()
 
-all_level_tiles = []
+all_tiles = []
 
 # generate each level's tile
 print("generate each level's tile")
@@ -101,8 +102,6 @@ for l in range(0, level+1):
     tiles = funcs.tile_model(root_object, l, level)
     print("split into", len(tiles), "tiles")
 
-    all_level_tiles.append(tiles)
-
     # export
     for tile in tiles:
 
@@ -114,6 +113,9 @@ for l in range(0, level+1):
         tile_path = path.join(tile_dir, 'model.gltf')
         os.makedirs(tile_dir, exist_ok=True)
 
+        # store tile's infomation
+        all_tiles.append({ "level": tile["level"], "x": tile["x"], "y": tile["y"], "gltf_path": tile_path })
+
         # deselect all
         bpy.ops.object.select_all(action='DESELECT')
         mesh.select_set(True)
@@ -121,6 +123,11 @@ for l in range(0, level+1):
         # export
         funcs.export_gltf(filepath=tile_path, format='GLTF_SEPARATE', selected=True)
 
+# export LOD infomation
+print("export LOD data")
+lod_data_path = path.join(absolute_export_directory, 'lod.json')
+with open(lod_data_path, 'w') as lod_data:  
+    json.dump(all_tiles, lod_data)
 
 # refine & compress texture images
 
