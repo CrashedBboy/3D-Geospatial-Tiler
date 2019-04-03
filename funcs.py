@@ -1,5 +1,6 @@
 import os.path as path
 import bpy
+import bmesh
 import math
 
 # delete every object (including camera and light source) in the scene
@@ -163,14 +164,14 @@ def clear_all():
     bpy.ops.wm.read_homefile(use_empty=True)
 
 # reduce number of meshes in 3d model
-def mesh_decimate(target = None, ratio):
+def mesh_decimate(target, ratio):
     print("ACTION: decimate mesh to", str(ratio*100)+"%")
 
     MODE = 'DECIMATE'
     MODIFIER_NAME = 'decimator'
 
     if target.type != "MESH":
-        print("target object is no MESH type")
+        print("target object is not MESH type")
     else:
         bpy.context.view_layer.objects.active = target
         modifier = target.modifiers.new(MODIFIER_NAME, MODE)
@@ -178,3 +179,184 @@ def mesh_decimate(target = None, ratio):
         modifier.ratio = ratio
         modifier.use_collapse_triangulate = True
         bpy.ops.object.modifier_apply(apply_as='DATA', modifier=MODIFIER_NAME)
+
+# get list of mesh objects
+def get_mesh_list():
+
+    mesh_list = []
+
+    for obj in bpy.data.objects:
+        if obj.type == "MESH":
+            mesh_list.append(obj)
+
+    return mesh_list
+
+def get_new_created_mesh(old_mesh_list):
+    new_mesh_list = get_mesh_list()
+    
+    new_created = []
+
+    for m in new_mesh_list:
+        if (m not in old_mesh_list):
+            new_created.append(m)
+
+    return new_created
+
+def get_mesh_center(target):
+
+    if (target.type != "MESH"):
+        print("target object is not MESH type")
+        return
+
+    x_min, x_max = math.inf, (-1) * math.inf
+    y_min, y_max = math.inf, (-1) * math.inf
+
+    # visit all vertices, get coordinate range in xy-plane and center position(x,y)
+    for v in target.data.vertices:
+        if v.co.x < x_min:
+            x_min = v.co.x
+        elif v.co.x > x_max:
+            x_max = v.co.x
+        if v.co.y < y_min:
+            y_min = v.co.y
+        elif v.co.y > y_max:
+            y_max = v.co.y
+    center = [(x_min+x_max)/2, (y_min+y_max)/2]
+
+    return center
+
+def tile_model(root_object, target_level, total_level):
+    print("ACTION: tiling level", target_level, "of", total_level)
+
+    if (root_object.type != "MESH"):
+        print("target object is not MESH type")
+        return
+
+    tile_queue = []
+
+    tile_queue.append( { "level": 0, "x": 0, "y": 0 , "name": root_object.name} )
+
+    while (len(tile_queue) > 0):
+
+        # get first element in queue
+        target = tile_queue[0]
+
+        # check whether its level < target level
+        if target["level"] == target_level:
+            break
+
+        current_level = target["level"]
+        gap = 2**(total_level - current_level - 1)
+
+        # get mesh center
+        center = get_mesh_center(bpy.data.objects[target["name"]])
+
+        # split it into 4 pieces and rename it
+        
+        # tile_1_0
+        old_meshes = get_mesh_list()
+        bpy.context.view_layer.objects.active = bpy.data.objects[target["name"]]
+
+        bpy.ops.object.mode_set(mode='EDIT')
+        bm = bmesh.from_edit_mesh(bpy.data.objects[target["name"]].data)
+
+        selected = 0
+        bpy.ops.mesh.select_all(action='DESELECT')
+        for face in bm.faces:
+            should_select = False
+            for v in face.verts:
+                if v.co.x >= center[0] and v.co.y >= center[1]:
+                    should_select = True
+                    break
+            if (should_select):
+                face.select_set(True)
+                selected += 1
+        bmesh.update_edit_mesh(bpy.data.objects[target["name"]].data, True)
+
+        if (selected > 0):
+            bpy.ops.mesh.separate(type='SELECTED')
+            bpy.ops.object.mode_set(mode='OBJECT')
+            new_created = get_new_created_mesh(old_meshes)
+            if len(new_created) == 1:
+                # push sub-meshes into queue
+                tile_queue.append( { "level": current_level+1, "x": target["x"]+gap, "y": target["y"], "name": new_created[0].name} )
+
+        # tile_1_1
+        old_meshes = get_mesh_list()
+        bpy.context.view_layer.objects.active = bpy.data.objects[target["name"]]
+
+        bpy.ops.object.mode_set(mode='EDIT')
+        bm = bmesh.from_edit_mesh(bpy.data.objects[target["name"]].data)
+
+        selected = 0
+        bpy.ops.mesh.select_all(action='DESELECT')
+        for face in bm.faces:
+            should_select = False
+            for v in face.verts:
+                if v.co.x >= center[0]:
+                    should_select = True
+                    break
+            if (should_select):
+                face.select_set(True)
+                selected += 1
+        bmesh.update_edit_mesh(bpy.data.objects[target["name"]].data, True)
+        if (selected > 0):
+            bpy.ops.mesh.separate(type='SELECTED')
+            bpy.ops.object.mode_set(mode='OBJECT')
+            new_created = get_new_created_mesh(old_meshes)
+            if len(new_created) == 1:
+                # push sub-meshes into queue
+                tile_queue.append( { "level": current_level+1, "x": target["x"]+gap, "y": target["y"]+gap, "name": new_created[0].name} )
+
+        # tile_0_0
+        old_meshes = get_mesh_list()
+        bpy.context.view_layer.objects.active = bpy.data.objects[target["name"]]
+
+        bpy.ops.object.mode_set(mode='EDIT')
+        bm = bmesh.from_edit_mesh(bpy.data.objects[target["name"]].data)
+
+        selected = 0
+        bpy.ops.mesh.select_all(action='DESELECT')
+        for face in bm.faces:
+            should_select = False
+            for v in face.verts:
+                if v.co.y >= center[1]:
+                    should_select = True
+                    break
+            if (should_select):
+                face.select_set(True)
+                selected += 1
+        bmesh.update_edit_mesh(bpy.data.objects[target["name"]].data, True)
+        if (selected > 0):
+            bpy.ops.mesh.separate(type='SELECTED')
+            bpy.ops.object.mode_set(mode='OBJECT')
+            new_created = get_new_created_mesh(old_meshes)
+            if len(new_created) == 1:
+                # push sub-meshes into queue
+                tile_queue.append( { "level": current_level+1, "x": target["x"], "y": target["y"], "name": new_created[0].name} )
+
+        # tile_0_1
+        old_meshes = get_mesh_list()
+        bpy.context.view_layer.objects.active = bpy.data.objects[target["name"]]
+
+        bpy.ops.object.mode_set(mode='EDIT')
+        bm = bmesh.from_edit_mesh(bpy.data.objects[target["name"]].data)
+
+        selected = 0
+        bpy.ops.mesh.select_all(action='DESELECT')
+        for face in bm.faces:
+            face.select_set(True)
+            selected += 1
+        bmesh.update_edit_mesh(bpy.data.objects[target["name"]].data, True)
+        if (selected > 0):
+            bpy.ops.mesh.separate(type='SELECTED')
+            bpy.ops.object.mode_set(mode='OBJECT')
+            new_created = get_new_created_mesh(old_meshes)
+            if len(new_created) == 1:
+                # push sub-meshes into queue
+                tile_queue.append( { "level": current_level+1, "x": target["x"], "y": target["y"]+gap, "name": new_created[0].name} )
+
+        # pop the first in queue
+        tile_queue.pop(0)
+
+    return tile_queue

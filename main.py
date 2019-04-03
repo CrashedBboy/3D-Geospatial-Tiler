@@ -24,10 +24,12 @@ IMPORT_MODEL = './models/mountain-gltf/model.gltf'
 IMPORT_FORMAT = 'GLTF'
 # IMPORT_MODEL = './models/mountain/mountain.obj'
 # IMPORT_FORMAT = 'OBJ'
-import_result = False
+
+EXPORT_DIR = './exported/mountain'
 
 absolute_model_path = path.abspath( path.join(current_dir, IMPORT_MODEL) )
 
+import_result = False
 if (IMPORT_FORMAT == 'GLTF'):
     import_result = funcs.import_gltf(absolute_model_path)
 elif (IMPORT_FORMAT == 'OBJ'):
@@ -70,10 +72,13 @@ level = funcs.get_proper_level(root_model_path)
 if (level == None):
     exit()
 
+level = 2
+
+all_level_tiles = []
+
 # generate each level's tile
 print("generate each level's tile")
 for l in range(0, level+1):
-    print("tiling model level", l)
 
     # clear all objects/uv_maps/images
     funcs.clear_all()
@@ -87,11 +92,15 @@ for l in range(0, level+1):
     print("decimate mesh to", str(decimate_percentage*100)+"%")
     funcs.mesh_decimate(root_object, decimate_percentage)
 
-    
+    # split mesh object into (2 x 2)^n sub-meshes
+    tiles = funcs.tile_model(root_object, l, level)
+    print("split into", len(tiles), "tiles")
 
-# split mesh object into 2 x 2 sub-mesh
+    all_level_tiles.append(tiles)
 
-# export 
+    # export
+
+print(all_level_tiles)
 
 # refine & compress texture images
 
