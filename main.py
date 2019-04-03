@@ -49,10 +49,10 @@ EXPORT_ANIMATION = False
 EXPORT_LIGHT = False
 EXPORT_CAMERA = False
 
-root_export_path = path.join(path.dirname(absolute_model_path), 'root.glb')
+root_model_path = path.join(path.dirname(absolute_model_path), 'root.glb')
 
 export_result = funcs.export_gltf(
-    filepath=root_export_path,
+    filepath=root_model_path,
     format='GLB',
     copyright=COPYRIGHT,
     camera=EXPORT_CAMERA,
@@ -65,10 +65,19 @@ if (export_result == False):
     exit()
 
 # get size of mesh and textures
+level = funcs.get_proper_level(root_model_path)
+
+if (level == None):
+    exit()
 
 # generate each level's tile
+print("generate each level's tile")
+for l in range(0, level+1):
+    print("tiling model level", l)
 
-# decimate mesh
+    # decimate mesh
+    decimate_percentage = funcs.get_decimate_percentage(l, level)
+    print("decimate mesh to", str(decimate_percentage)+"%")
 
 # split mesh object into 2 x 2 sub-mesh
 

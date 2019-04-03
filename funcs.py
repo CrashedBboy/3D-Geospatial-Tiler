@@ -1,5 +1,6 @@
 import os.path as path
 import bpy
+import math
 
 # delete every object (including camera and light source) in the scene
 def clear_default():
@@ -120,3 +121,39 @@ def export_gltf(filepath=None, format='GLTF_SEPARATE', copyright='', camera=Fals
             export_lights = light,
             filepath = filepath
             )
+
+# get model's information
+# including vertices/faces/uv-mapping count and file size of texture images.
+def get_proper_level(filepath = None):
+    print("ACTION: compute model tiling level")
+
+    LEVEL_MAX = 5
+
+    if (filepath == None) or (path.exists(filepath) == False):
+        print("file", filepath, "not found")
+        return None
+    else:
+        file_size = path.getsize(filepath) / (1024*1024) # in MBs
+        level = math.ceil(math.log(file_size, 4))
+
+        if level < 0:
+            level = 0
+        
+        if level > LEVEL_MAX:
+            level = LEVEL_MAX
+
+        print("proper tiling level:", level)
+        return level
+
+# get decimate ratio for models of each level
+def get_decimate_percentage(current_level, total_level):
+
+    DECIMATE_LEVEL_RATIO = 1.414 # square root of 2
+    MINIMUM = 0.2
+
+    percentage = 100/DECIMATE_LEVEL_RATIO**(total_level - current_level)
+
+    if percentage < MINIMUM:
+        percentage = MINIMUM
+    
+    return percentage
