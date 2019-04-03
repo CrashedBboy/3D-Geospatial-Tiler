@@ -11,6 +11,7 @@ if not current_dir in sys.path:
 import bpy
 from os import path
 import json
+import subprocess
 import funcs
 
 print("\n---------------------program started---------------------\n")
@@ -128,6 +129,11 @@ print("export LOD data")
 lod_data_path = path.join(absolute_export_directory, 'lod.json')
 with open(lod_data_path, 'w') as lod_data:  
     json.dump(all_tiles, lod_data)
+
+# get uv mapping data
+NODE_EXEC = "node"
+PARSER_PATH = path.abspath( path.join( path.dirname(__file__), 'uv-parser.js') )
+uv_parser_proc = subprocess.run([NODE_EXEC, PARSER_PATH, "--input", lod_data_path], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
 # refine & compress texture images
 
