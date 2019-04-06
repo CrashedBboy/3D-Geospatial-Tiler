@@ -117,7 +117,7 @@ for l in range(0, level+1):
         os.makedirs(tile_dir, exist_ok=True)
 
         # store tile's infomation
-        all_tiles.append({ "level": tile["level"], "x": tile["x"], "y": tile["y"], "gltf_path": tile_path })
+        all_tiles.append({ "level": tile["level"], "total_level": level, "x": tile["x"], "y": tile["y"], "gltf_path": tile_path })
 
         # deselect all
         bpy.ops.object.select_all(action='DESELECT')
@@ -140,12 +140,12 @@ uv_parser_proc = subprocess.run([NODE_EXEC, PARSER_PATH, "--input", lod_data_pat
 
 print(uv_parser_proc)
 
-if (uv_parser_proc.returncoode == 1):
+if (uv_parser_proc.returncode == 1):
     print("failed to parse UV mapping data from GLTF model, exit")
     exit()
 
 # refine & compress texture images
 for tile in all_tiles:
-    # do something
+    funcs.refine_texture(tile)
 
 # convert gltf into b3dm & generate 3d tiles
