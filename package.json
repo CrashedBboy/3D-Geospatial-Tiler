@@ -1,0 +1,23 @@
+{
+  "name": "blender-3d-tiler",
+  "version": "1.0.0",
+  "description": "uv parser for 3d tiler",
+  "main": "uv-parser.js",
+  "dependencies": {
+    "yargs": "^13.2.2"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CrashedBboy/blender-3d-tiler.git"
+  },
+  "author": "crashedbboy",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/CrashedBboy/blender-3d-tiler/issues"
+  },
+  "homepage": "https://github.com/CrashedBboy/blender-3d-tiler#readme"
+}
