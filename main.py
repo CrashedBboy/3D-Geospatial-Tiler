@@ -78,6 +78,8 @@ if (export_result == False):
 # get size of mesh and textures
 level = funcs.get_proper_level(root_model_path)
 
+level = 1
+
 if (level == None):
     exit()
 
@@ -134,7 +136,16 @@ with open(lod_data_path, 'w') as lod_data:
 NODE_EXEC = "node"
 PARSER_PATH = path.abspath( path.join( path.dirname(__file__), 'uv-parser.js') )
 uv_parser_proc = subprocess.run([NODE_EXEC, PARSER_PATH, "--input", lod_data_path], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+# command like: node C:\\Users\\CrashedBboy\\Projects\\blender-3d-tiler\\uv-parser.js --input 'C:\\Users\\CrashedBboy\\Projects\\blender-3d-tiler\\export\\mountain\\lod.json'
+
+print(uv_parser_proc)
+
+if (uv_parser_proc.returncoode == 1):
+    print("failed to parse UV mapping data from GLTF model, exit")
+    exit()
 
 # refine & compress texture images
+for tile in all_tiles:
+    # do something
 
 # convert gltf into b3dm & generate 3d tiles
