@@ -5,6 +5,7 @@ import math
 import numpy
 from PIL import Image, ImageDraw
 import json
+import subprocess
 
 # delete every object (including camera and light source) in the scene
 def clear_default():
@@ -194,6 +195,7 @@ def get_mesh_list():
 
     return mesh_list
 
+# compare old mesh list with the current to find the new created meshes
 def get_new_created_mesh(old_mesh_list):
     new_mesh_list = get_mesh_list()
     
@@ -205,6 +207,7 @@ def get_new_created_mesh(old_mesh_list):
 
     return new_created
 
+# get grometry center of mesh object
 def get_mesh_center(target):
 
     if (target.type != "MESH"):
@@ -228,6 +231,7 @@ def get_mesh_center(target):
 
     return center
 
+# split mesh object into 4
 def tile_model(root_object, target_level, total_level):
     print("ACTION: tiling level", target_level, "of", total_level)
 
@@ -365,6 +369,7 @@ def tile_model(root_object, target_level, total_level):
     bpy.ops.object.mode_set(mode='OBJECT')
     return tile_queue
 
+# remove unmapped part of texture images and compress them
 def refine_texture(tile):
     print("ACTION: refine texture of model", tile["level"], tile["x"], tile["y"])
 
@@ -432,3 +437,19 @@ def refine_texture(tile):
         abs_output_path = path.abspath( path.join(path.dirname(abs_uv_map), 'refined_texture_map.json') )
         with open(abs_output_path, 'w') as outfile:  
             json.dump(img_corresponding, outfile)
+
+# update texture image filename in GLTF model
+def update_texture(tile):
+    print("ACTION: update texture filename of model", tile["level"], tile["x"], tile["y"])
+
+    gltf_dir = path.dirname(tile["gltf_path"])
+
+    if (not path.exists(path.join(gltf_dir, "refined_texture_map.json"))):
+        print("file 'refined_texture_map.json' is not exist")
+        return False
+    
+    NODE_EXEC = "node"
+    UPDATER_PATH = path.abspath( path.join( path.dirname(__file__), 'texture-updater.js') )
+    texture_updater_proc = subprocess.run([NODE_EXEC, UPDATER_PATH, "--input", tile["gltf_path"]], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+    return texture_updater_proc

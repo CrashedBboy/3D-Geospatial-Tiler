@@ -148,4 +148,12 @@ if (uv_parser_proc.returncode == 1):
 for tile in all_tiles:
     funcs.refine_texture(tile)
 
+# update texture images name in GLTF models
+for tile in all_tiles:
+    texture_updater_proc = funcs.update_texture(tile)
+
+    if (texture_updater_proc == False)  or (uv_parser_proc.returncode == 1):
+        print("failed to update texture image filename for GLTF model, exit")
+        exit()
+
 # convert gltf into b3dm & generate 3d tiles
