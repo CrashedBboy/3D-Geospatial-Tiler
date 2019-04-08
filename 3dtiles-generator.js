@@ -5,12 +5,11 @@ const Cesium = require('cesium');
 const ConvertGltfToGLB = require('gltf-import-export').ConvertGltfToGLB;
 const glbToB3dm = require('./3d-tiles-tools/lib/glbToB3dm');
 
-const LATITUDE = 25.078503;
-const LONGITUDE = 121.238418;
-const HEIGHT = 0;
-
 let inputPath = argv.input;
 let outputPath = argv.output;
+let latitude = parseFloat(argv.latitude);
+let longitude = parseFloat(argv.longitude);
+let height = parseFloat(argv.height);
 
 if (!inputPath || !fs.existsSync(inputPath) || !outputPath || !fs.existsSync(outputPath)) {
     console.log('input file / output directory not found');
@@ -28,16 +27,8 @@ let quadTree = {
 // searching for root tile
 for (let i = 0; i < tilesList.length; i++) {
     let tile = tilesList[i];
-
     if (tile.level == 0) {
-        quadTree.root = {
-            level: tile.level,
-            x: tile.x,
-            y: tile.y,
-            gltf: getRefinedGltfPath(tile.gltf_path),
-            children: []
-        }
-
+        quadTree.root = { level: tile.level, x: tile.x, y: tile.y, gltf: getRefinedGltfPath(tile.gltf_path), children: [] };
         break;
     }
 }
@@ -52,9 +43,9 @@ let tileset = {
     },
     geometricError: 200,
     root: {
-        transform: getTransformation(LATITUDE, LONGITUDE, HEIGHT),
+        transform: getTransformation(latitude, longitude, height),
         boundingVolume: {
-            region: getWorldBoundry(getObjectBoundry(quadTree.root.gltf), [LATITUDE, LONGITUDE, HEIGHT])
+            region: getWorldBoundry(getObjectBoundry(quadTree.root.gltf), [latitude, longitude, height])
         },
         geometricError: getGeometricError(quadTree.root.level, quadTree.level),
         refine: "REPLACE",
@@ -123,12 +114,12 @@ function expandTree(node, totalLevel) {
 // passed in degrees
 function getTransformation(latitude, longitude, height) {
 
-    latitude = latitude / (180/Math.PI);
-    longitude = longitude / (180/Math.PI);
+    latitudeRadian = latitude / (180/Math.PI);
+    longitudeRadian = longitude / (180/Math.PI);
 
     return Cesium.Matrix4.toArray(
         Cesium.Transforms.headingPitchRollToFixedFrame(
-            Cesium.Cartesian3.fromRadians(longitude, latitude, height),
+            Cesium.Cartesian3.fromRadians(longitudeRadian, latitudeRadian, height),
             new Cesium.HeadingPitchRoll(0, 0, 0)
         ));
 }
@@ -191,8 +182,8 @@ function getWorldBoundry(boundry, center) {
         return meters * 0.000000157891;
     }
 
-    let lonMin = metersToLongitude(boundry[1], LATITUDE / (180 / Math.PI));
-    let lonMax = metersToLongitude(boundry[0], LATITUDE / (180 / Math.PI));
+    let lonMin = metersToLongitude(boundry[1], latitude / (180 / Math.PI));
+    let lonMax = metersToLongitude(boundry[0], latitude / (180 / Math.PI));
 
     let latMin = metersToLatitude(boundry[3]);
     let latMax = metersToLatitude(boundry[2]);
@@ -244,7 +235,7 @@ function gltfToB3dm(gltfPath, b3dmPath) {
 function generateTile(parentTile, node) {
     let tileset = {
         boundingVolume: {
-            region: getWorldBoundry(getObjectBoundry(node.gltf), [LATITUDE, LONGITUDE, HEIGHT])
+            region: getWorldBoundry(getObjectBoundry(node.gltf), [latitude, longitude, height])
         },
         geometricError: getGeometricError(node.level, quadTree.level),
         refine: "REPLACE",

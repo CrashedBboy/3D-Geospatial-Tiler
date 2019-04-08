@@ -29,6 +29,10 @@ IMPORT_FORMAT = 'GLTF'
 
 EXPORT_DIR = './export/mountain'
 
+LATITUDE = 25.082977
+LONGITUDE = 121.245466
+HEIGHT = 10
+
 absolute_model_path = path.abspath( path.join(current_dir, IMPORT_MODEL) )
 
 absolute_export_directory = path.abspath( path.join(current_dir, EXPORT_DIR) )
@@ -81,7 +85,7 @@ level = funcs.get_proper_level(root_model_path)
 if (level == None):
     exit()
 
-level = 2
+level = 1
 
 all_tiles = []
 
@@ -158,7 +162,7 @@ for tile in all_tiles:
 
 # convert gltf into b3dm & generate 3d tiles
 tileset_path = path.join(absolute_export_directory, '3dtiles')
-generator_proc = funcs.generate_3d_tiles(input_path=lod_data_path, output_path=tileset_path)
+generator_proc = funcs.generate_3d_tiles(input_path=lod_data_path, output_path=tileset_path, latitude=str(LATITUDE), longitude=str(LONGITUDE), height=str(HEIGHT))
 
 if (generator_proc == False) or (generator_proc.returncode == 1):
     print("failed to generate 3D tileset, exit")

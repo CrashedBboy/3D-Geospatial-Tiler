@@ -455,7 +455,7 @@ def update_texture(tile):
     return texture_updater_proc
 
 # convert all GLTF model to b3dm and generate 3D tileset
-def generate_3d_tiles(input_path, output_path):
+def generate_3d_tiles(input_path, output_path, latitude=25.078503, longitude=121.238418, height=0):
     print("ACTION: convert all GLTF model to b3dm and generate 3D tileset")
 
     if (not path.exists(input_path)) or (not path.exists(output_path)):
@@ -464,6 +464,10 @@ def generate_3d_tiles(input_path, output_path):
     
     NODE_EXEC = "node"
     GENERATOR_PATH = path.abspath( path.join( path.dirname(__file__), '3dtiles-generator.js') )
-    generator_proc = subprocess.run([NODE_EXEC, GENERATOR_PATH, "--input", input_path, "--output", output_path], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    generator_proc = subprocess.run(
+        [NODE_EXEC, GENERATOR_PATH, "--input", input_path, "--output", output_path, "--latitude", latitude, "--longitude", longitude, "--height", height],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE
+        )
 
     return generator_proc
