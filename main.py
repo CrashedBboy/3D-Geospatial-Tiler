@@ -78,10 +78,10 @@ if (export_result == False):
 # get size of mesh and textures
 level = funcs.get_proper_level(root_model_path)
 
-level = 1
-
 if (level == None):
     exit()
+
+level = 2
 
 all_tiles = []
 
@@ -157,3 +157,11 @@ for tile in all_tiles:
         exit()
 
 # convert gltf into b3dm & generate 3d tiles
+tileset_path = path.join(absolute_export_directory, '3dtiles')
+generator_proc = funcs.generate_3d_tiles(input_path=lod_data_path, output_path=tileset_path)
+
+if (generator_proc == False) or (generator_proc.returncode == 1):
+    print("failed to generate 3D tileset, exit")
+    exit()
+
+print("processing completed")
