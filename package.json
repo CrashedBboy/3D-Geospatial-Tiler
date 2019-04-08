@@ -4,6 +4,7 @@
   "description": "uv parser for 3d tiler",
   "main": "uv-parser.js",
   "dependencies": {
+    "cesium": "^1.56.1",
     "yargs": "^13.2.2"
   },
   "devDependencies": {},
