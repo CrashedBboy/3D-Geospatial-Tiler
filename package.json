@@ -5,6 +5,7 @@
   "main": "uv-parser.js",
   "dependencies": {
     "cesium": "^1.56.1",
+    "gltf-import-export": "^1.0.15",
     "yargs": "^13.2.2"
   },
   "devDependencies": {},
