@@ -24,7 +24,7 @@ funcs.clear_default()
 
 IMPORT_MODEL = './models/mountain-gltf/model.gltf'
 IMPORT_FORMAT = 'GLTF'
-# IMPORT_MODEL = './models/mountain/mountain.obj'
+# IMPORT_MODEL = './models/wood_house/house.obj'
 # IMPORT_FORMAT = 'OBJ'
 
 EXPORT_DIR = './export/mountain'
@@ -85,7 +85,7 @@ level = funcs.get_proper_level(root_model_path)
 if (level == None):
     exit()
 
-level = 1
+level = 2
 
 all_tiles = []
 
@@ -165,6 +165,7 @@ tileset_path = path.join(absolute_export_directory, '3dtiles')
 generator_proc = funcs.generate_3d_tiles(input_path=lod_data_path, output_path=tileset_path, latitude=str(LATITUDE), longitude=str(LONGITUDE), height=str(HEIGHT))
 
 if (generator_proc == False) or (generator_proc.returncode == 1):
+    print(generator_proc)
     print("failed to generate 3D tileset, exit")
     exit()
 
