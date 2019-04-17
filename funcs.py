@@ -2,7 +2,7 @@ import os.path as path
 import bpy
 import bmesh
 import math
-import numpy
+import numpy as np
 from PIL import Image, ImageDraw
 import json
 import subprocess
@@ -99,6 +99,55 @@ def triangulate():
         modifier.keep_custom_normals = True
         # apply modifier
         bpy.ops.object.modifier_apply(apply_as='DATA', modifier=modifier_name)
+
+# limit max size of texture image
+def limit_texture(max_size):
+    print("ACTION: limit texture image size")
+
+    for img in bpy.data.images:
+        if (img.type == "IMAGE"):
+
+            width = img.size[0]
+            height = img.size[1]
+
+            resize = False
+
+            if width > max_size:
+                resize = True
+                width = max_size
+
+            if height > max_size:
+                resize = True
+                height = max_size
+
+            if (resize):
+                img.scale(width, height)
+
+# export texture images to file
+def export_texture(image=None, filepath=None):
+    print("ACTION: export texture", image.name, "to", filepath)
+
+    target_channels = channels = image.channels
+    if target_channels >= 3:
+        target_channels = 3
+
+    copied_pixels = image.pixels[:]
+    pixels = np.array(copied_pixels)
+    copied_pixels = None
+
+    # convert value range from [0,1] to [0,255]
+    pixels = pixels * 255
+    pixels = pixels.astype(np.uint8)
+
+    # convert to 3d array (width,height,channels)
+    pixels = pixels.reshape((image.size[1], image.size[0], channels))
+
+    pixels = pixels[:,:, 0:target_channels]
+    pixels = np.flip(pixels, 0)
+
+    Image.fromarray(pixels).save(filepath, 'JPEG')
+
+    pixels = None
 
 # export model in gltf format
 # note: Blender under version 2.8 does not support exporting gltf by default
