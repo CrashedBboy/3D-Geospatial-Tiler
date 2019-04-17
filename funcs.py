@@ -212,7 +212,7 @@ def get_proper_level(filepath = None):
 # get decimate ratio for models of each level
 def get_decimate_percentage(current_level, total_level):
 
-    DECIMATE_LEVEL_RATIO = 1.414 # square root of 2
+    DECIMATE_LEVEL_RATIO = 2
     MINIMUM = 0.2
 
     percentage = 1/DECIMATE_LEVEL_RATIO**(total_level - current_level)
@@ -441,7 +441,7 @@ def refine_texture(tile, original_textures=None):
 
     abs_uv_map = path.join(gltf_dir, 'uv_coord.json')
 
-    jpeg_quality = math.ceil(100 / (1.414)**(tile["total_level"] - tile["level"]))
+    jpeg_quality = math.ceil(85 / (1.414)**(tile["total_level"] - tile["level"]))
 
     with open(abs_uv_map) as file:
         maps = json.load(file)

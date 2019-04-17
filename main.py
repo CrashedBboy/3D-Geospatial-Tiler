@@ -117,7 +117,7 @@ level = funcs.get_proper_level(root_model_path)
 if (level == None):
     exit()
 
-level = 0
+level = 3
 
 all_tiles = []
 
@@ -195,6 +195,7 @@ for tile in all_tiles:
 # convert gltf into b3dm & generate 3d tiles
 tileset_path = path.join(absolute_export_directory, '3dtiles')
 generator_proc = funcs.generate_3d_tiles(input_path=lod_data_path, output_path=tileset_path, latitude=str(LATITUDE), longitude=str(LONGITUDE), height=str(HEIGHT))
+print(generator_proc)
 
 if (generator_proc == False) or (generator_proc.returncode == 1):
     print(generator_proc)

@@ -168,6 +168,7 @@ function getObjectBoundry(gltfPath) {
     return [xMax, xMin, yMax, yMin, zMax, zMin];
 }
 
+// assume all model are Y up, -Z forward
 // boundry: [xMax, xMin, yMax, yMin, zMax, zMin]
 // center: [latitude, longitude, height]
 function getWorldBoundry(boundry, center) {
@@ -185,8 +186,8 @@ function getWorldBoundry(boundry, center) {
     let lonMin = metersToLongitude(boundry[1], latitude / (180 / Math.PI));
     let lonMax = metersToLongitude(boundry[0], latitude / (180 / Math.PI));
 
-    let latMin = metersToLatitude(boundry[3]);
-    let latMax = metersToLatitude(boundry[2]);
+    let latMin = metersToLatitude(boundry[5]);
+    let latMax = metersToLatitude(boundry[4]);
 
     let centerLat = center[0] / (180 / Math.PI);
     let centerLon = center[1] / (180 / Math.PI);
@@ -197,8 +198,8 @@ function getWorldBoundry(boundry, center) {
         centerLat + latMin,
         centerLon + lonMax,
         centerLat + latMax,
-        centerHeight + boundry[5],
-        centerHeight + boundry[4]
+        centerHeight,
+        centerHeight + (boundry[2]-boundry[3])
     ];
 }
 
