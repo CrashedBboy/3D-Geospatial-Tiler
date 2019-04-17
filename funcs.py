@@ -6,6 +6,7 @@ import numpy as np
 from PIL import Image, ImageDraw
 import json
 import subprocess
+import shutil
 
 # delete every object (including camera and light source) in the scene
 def clear_default():
@@ -167,6 +168,7 @@ def export_gltf(filepath=None, format='GLTF_SEPARATE', copyright='', camera=Fals
         return False
     else:
         return bpy.ops.export_scene.gltf(
+            export_image_format = "JPEG",
             export_format = format, # 'GLB', 'GLTF_EMBEDDED', 'GLTF_SEPARATE'
             export_copyright = copyright,
             export_texcoords = True,
@@ -427,10 +429,17 @@ def tile_model(root_object, target_level, total_level):
     return tile_queue
 
 # remove unmapped part of texture images and compress them
-def refine_texture(tile):
+def refine_texture(tile, original_textures=None):
     print("ACTION: refine texture of model", tile["level"], tile["x"], tile["y"])
 
-    abs_uv_map = path.join(path.dirname(tile['gltf_path']), 'uv_coord.json')
+    gltf_dir = path.dirname(tile['gltf_path'])
+
+    if original_textures != None:
+        for tex in original_textures:
+            print("restore texture", tex, "to", gltf_dir)
+            shutil.copy2(tex, gltf_dir)
+
+    abs_uv_map = path.join(gltf_dir, 'uv_coord.json')
 
     jpeg_quality = math.ceil(100 / (1.414)**(tile["total_level"] - tile["level"]))
 
@@ -438,6 +447,8 @@ def refine_texture(tile):
         maps = json.load(file)
 
         img_corresponding = []
+
+        images = []
 
         for idx, map in enumerate(maps['maps']):
 
@@ -451,7 +462,7 @@ def refine_texture(tile):
 
             # read image as RGB
             img = Image.open(abs_img_path).convert("RGB")
-            img_array = numpy.asarray(img)
+            img_array = np.asarray(img)
             img_width, img_height = img_array.shape[1], img_array.shape[0]
 
             # create new image ("1-bit pixels, black and white", (width, height), "default color")
@@ -459,39 +470,57 @@ def refine_texture(tile):
 
             # set uv polygon area in mask matrix to 1
             for id, face_uv in enumerate(map['faceUvs']):
-                polygon = []
+                polygons = []
                 for uv in face_uv:
                     if uv:
-                        polygon.append( ( round(uv[0] * img_width), round(uv[1] * img_height) ) )
-                if len(polygon) >= 2:
-                    ImageDraw.Draw(mask_img).polygon(polygon, outline=1, fill=1)
-                    mask = numpy.array(mask_img)
+                        polygons.append( ( round(uv[0] * img_width), round(uv[1] * img_height) ) )
+                if len(polygons) >= 2:
+                    ImageDraw.Draw(mask_img).polygon(polygons, outline=1, fill=1)
             
-            mask = numpy.array(mask_img)
+            mask = np.array(mask_img, dtype=np.bool)
+
+            img.close()
+            mask_img.close()
+
+            # search for image name in array
+            found = False
+            for img in images:
+                if (img["basename"] == img_basename):
+                    img["mask"] = np.logical_or(img["mask"], mask)
+                    found = True
+                    break
+            
+            if not found:
+                images.append({"abs_path": abs_img_path, "rel_path": map['image']['uri'], "ext": img_ext, "basename": img_basename, "mask": mask})
+
+        for i in images:
+
+            # read image as RGB
+            img = Image.open(i["abs_path"]).convert("RGB")
+            img_array = np.asarray(img)
 
             # assemble new image (uint8: 0-255)
-            new_img_array = numpy.empty(img_array.shape, dtype='uint8')
+            new_img_array = np.empty(img_array.shape, dtype='uint8')
 
             # copy color values (RGB)
             new_img_array[:,:,:3] = img_array[:,:,:3]
 
             # filtering image by mask
-            new_img_array[:,:,0] = new_img_array[:,:,0] * mask
-            new_img_array[:,:,1] = new_img_array[:,:,1] * mask
-            new_img_array[:,:,2] = new_img_array[:,:,2] * mask
+            new_img_array[:,:,0] = new_img_array[:,:,0] * i["mask"]
+            new_img_array[:,:,1] = new_img_array[:,:,1] * i["mask"]
+            new_img_array[:,:,2] = new_img_array[:,:,2] * i["mask"]
 
             # back to Image from numpy
             new_image = Image.fromarray(new_img_array, "RGB")
-            new_image.save(path.abspath( path.join(path.dirname(abs_img_path), img_basename + '_refined.jpg') ), 'JPEG', quality = jpeg_quality)
+            new_image.save(path.abspath( path.join(path.dirname(i["abs_path"]), i["basename"] + '_refined.jpg') ), 'JPEG', quality = jpeg_quality)
 
             img.close()
             new_image.close()
-            mask_img.close()
 
             # save old <--> new texture name mapping
-            img_corresponding.append({"old": map['image']['uri'], "new": map['image']['uri'].replace(img_basename + '.' + img_ext, img_basename + '_refined.jpg')})
-
-        abs_output_path = path.abspath( path.join(path.dirname(abs_uv_map), 'refined_texture_map.json') )
+            img_corresponding.append({"old": i["rel_path"], "new": i["rel_path"].replace(i["basename"] + '.' + i["ext"], i["basename"] + '_refined.jpg')})
+        
+        abs_output_path = path.abspath( path.join(gltf_dir, 'refined_texture_map.json') )
         with open(abs_output_path, 'w') as outfile:  
             json.dump(img_corresponding, outfile)
 

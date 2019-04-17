@@ -30,6 +30,7 @@ IMPORT_MODEL = './models/chocolate_farm/choco.obj'
 IMPORT_FORMAT = 'OBJ'
 
 EXPORT_DIR = './export/choco'
+# EXPORT_DIR = './export/mountain'
 
 LATITUDE = 25.082977
 LONGITUDE = 121.245466
@@ -85,8 +86,6 @@ for img in bpy.data.images:
         funcs.export_texture(image=img, filepath=filepath)
         original_textures.append(filepath)
 
-exit()
-
 # downscale all texture image to size [1,1]
 funcs.minimize_texture()
 
@@ -101,7 +100,7 @@ root_model_path = path.join(absolute_export_directory, 'root.gltf')
 
 export_result = funcs.export_gltf(
     filepath=root_model_path,
-    format='GLB',
+    format='GLTF_SEPARATE',
     copyright=COPYRIGHT,
     camera=EXPORT_CAMERA,
     selected=EXPORT_SELECTED,
@@ -118,7 +117,7 @@ level = funcs.get_proper_level(root_model_path)
 if (level == None):
     exit()
 
-level = 2
+level = 0
 
 all_tiles = []
 
@@ -183,7 +182,7 @@ if (uv_parser_proc.returncode == 1):
 
 # refine & compress texture images
 for tile in all_tiles:
-    funcs.refine_texture(tile)
+    funcs.refine_texture(tile, original_textures=original_textures)
 
 # update texture images name in GLTF models
 for tile in all_tiles:
