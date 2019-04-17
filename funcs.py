@@ -149,6 +149,14 @@ def export_texture(image=None, filepath=None):
 
     pixels = None
 
+# minimize all texture (to save time while export tiles to glTF models)
+def minimize_texture():
+    print("ACTION: minimize all texture")
+
+    for img in bpy.data.images:
+        if (img.type == "IMAGE"):
+            img.scale(1, 1)
+
 # export model in gltf format
 # note: Blender under version 2.8 does not support exporting gltf by default
 def export_gltf(filepath=None, format='GLTF_SEPARATE', copyright='', camera=False, selected=False, animation=False, light=False):
