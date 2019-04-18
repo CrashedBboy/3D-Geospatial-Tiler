@@ -31,7 +31,7 @@ def import_gltf(filepath = None):
             )
 
 # import OBJ model
-def import_obj(filepath = None):
+def import_obj(filepath = None, axis_forward="Y", axis_up="Z"):
     print("ACTION: import OBJ model")
 
     if (filepath == None) or (not path.isfile(filepath)):
@@ -49,8 +49,8 @@ def import_obj(filepath = None):
             use_image_search = True,
             split_mode = 'ON',
             global_clight_size = 0.0,
-            axis_forward = '-Z',
-            axis_up = 'Y'
+            axis_forward = axis_forward,
+            axis_up = axis_up
             )
 
 # join all object into one
@@ -160,7 +160,7 @@ def minimize_texture():
 
 # export model in gltf format
 # note: Blender under version 2.8 does not support exporting gltf by default
-def export_gltf(filepath=None, format='GLTF_SEPARATE', copyright='', camera=False, selected=False, animation=False, light=False):
+def export_gltf(filepath=None, format='GLTF_SEPARATE', yup=False, selected=False):
     print("ACTION: export to GLTF")
 
     if (filepath == None) or (not path.isdir(path.dirname(filepath))):
@@ -170,20 +170,52 @@ def export_gltf(filepath=None, format='GLTF_SEPARATE', copyright='', camera=Fals
         return bpy.ops.export_scene.gltf(
             export_image_format = "JPEG",
             export_format = format, # 'GLB', 'GLTF_EMBEDDED', 'GLTF_SEPARATE'
-            export_copyright = copyright,
+            export_copyright = '',
             export_texcoords = True,
             export_normals = True,
             export_materials = True,
             export_colors = True,
-            export_cameras = camera,
+            export_cameras = False,
             export_selected = selected,
             export_extras = False,
-            export_yup = True,
+            export_yup = yup,
             export_apply = False,
-            export_animations = animation,
-            export_frame_range = animation,
-            export_lights = light,
+            export_animations = False,
+            export_frame_range = False,
+            export_lights = False,
             filepath = filepath
+            )
+
+def export_obj(filepath=None, selected=False, axis_forward="Y", axis_up="Z"):
+    print("ACTION: export to OBJ")
+
+    if (filepath == None) or (not path.isdir(path.dirname(filepath))):
+        print("Invalid output path")
+        return False
+    else:
+        return bpy.ops.export_scene.obj(
+            filepath=filepath,
+            check_existing=False,
+            use_selection=selected,
+            use_animation=False,
+            use_mesh_modifiers=True,
+            use_edges=True,
+            use_smooth_groups=False,
+            use_smooth_groups_bitflags=False,
+            use_normals=True,
+            use_uvs=True,
+            use_materials=True,
+            use_triangles=False,
+            use_nurbs=False,
+            use_vertex_groups=False,
+            use_blen_objects=True,
+            group_by_object=False,
+            group_by_material=False,
+            keep_vertex_order=False,
+            global_scale=1.0,
+            path_mode='COPY',
+            axis_forward=axis_forward,
+            axis_up=axis_up
             )
 
 # get model's information
