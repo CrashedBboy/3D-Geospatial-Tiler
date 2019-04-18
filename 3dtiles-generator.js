@@ -190,8 +190,8 @@ function getWorldBoundry(boundry, center) {
     let lonMin = metersToLongitude(boundry[1], latitude / (180 / Math.PI));
     let lonMax = metersToLongitude(boundry[0], latitude / (180 / Math.PI));
 
-    let latMin = metersToLatitude(boundry[5]);
-    let latMax = metersToLatitude(boundry[4]);
+    let latMin = metersToLatitude(boundry[4]); // greater z value: souther
+    let latMax = metersToLatitude(boundry[5]);
 
     let centerLat = center[0] / (180 / Math.PI);
     let centerLon = center[1] / (180 / Math.PI);
@@ -199,11 +199,11 @@ function getWorldBoundry(boundry, center) {
 
     return [
         centerLon + lonMin,
-        centerLat + latMin,
+        centerLat - latMin,
         centerLon + lonMax,
-        centerLat + latMax,
-        centerHeight,
-        centerHeight + boundry[2] - boundry[3]
+        centerLat - latMax,
+        centerHeight + boundry[3],
+        centerHeight + boundry[2]
     ];
 }
 
