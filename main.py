@@ -23,14 +23,14 @@ funcs.clear_default()
 # supported formats: OBJ, FBX, DAE, GLTF
 
 # IMPORT_MODEL = './models/mountain-gltf/model.gltf'
-# IMPORT_MODEL = './models/chocolate_farm-gltf/choco.glb'
 # IMPORT_FORMAT = 'GLTF'
+IMPORT_MODEL = './models/mountain/mountain.obj'
 # IMPORT_MODEL = './models/wood_house/house.obj'
-IMPORT_MODEL = './models/chocolate_farm/choco.obj'
+# IMPORT_MODEL = './models/chocolate_farm/choco.obj'
 IMPORT_FORMAT = 'OBJ'
 
-EXPORT_DIR = './export/choco'
-# EXPORT_DIR = './export/mountain'
+# EXPORT_DIR = './export/choco'
+EXPORT_DIR = './export/mountain'
 
 LATITUDE = 25.082977
 LONGITUDE = 121.245466
@@ -117,7 +117,7 @@ level = funcs.get_proper_level(root_model_path)
 if (level == None):
     exit()
 
-level = 3
+level = 1
 
 all_tiles = []
 
