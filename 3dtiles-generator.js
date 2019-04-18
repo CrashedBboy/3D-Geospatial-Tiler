@@ -5,6 +5,8 @@ const Cesium = require('cesium');
 const ConvertGltfToGLB = require('gltf-import-export').ConvertGltfToGLB;
 const glbToB3dm = require('./3d-tiles-tools/lib/glbToB3dm');
 
+const MAX_GEO_ERROR = 3; // if MAX_GEO_ERROR = 4, max geometricError = 2^4 = 32 
+
 let inputPath = argv.input;
 let outputPath = argv.output;
 let latitude = parseFloat(argv.latitude);
@@ -47,7 +49,7 @@ let tileset = {
         boundingVolume: {
             region: getWorldBoundry(getObjectBoundry(quadTree.root.gltf), [latitude, longitude, height])
         },
-        geometricError: getGeometricError(quadTree.root.level, quadTree.level),
+        geometricError: getGeometricError(quadTree.root.level),
         refine: "REPLACE",
         content: {
             uri: getB3dmFilename(quadTree.root)
@@ -114,8 +116,8 @@ function expandTree(node, totalLevel) {
 // passed in degrees
 function getTransformation(latitude, longitude, height) {
 
-    latitudeRadian = latitude / (180/Math.PI);
-    longitudeRadian = longitude / (180/Math.PI);
+    latitudeRadian = latitude / (180 / Math.PI);
+    longitudeRadian = longitude / (180 / Math.PI);
 
     return Cesium.Matrix4.toArray(
         Cesium.Transforms.headingPitchRollToFixedFrame(
@@ -138,31 +140,33 @@ function getObjectBoundry(gltfPath) {
     for (let i = 0; i < gltf.meshes.length; i++) {
         let m = gltf.meshes[i];
 
-        let accessor = gltf.accessors[m.primitives[0].attributes.POSITION];
+        m.primitives.forEach((p) => {
+            let accessor = gltf.accessors[p.attributes.POSITION];
 
-        // x
-        if (accessor.min[0] < xMin) {
-            xMin = accessor.min[0];
-        }
-        if (accessor.max[0] > xMax) {
-            xMax = accessor.max[0];
-        }
+            // x
+            if (accessor.min[0] < xMin) {
+                xMin = accessor.min[0];
+            }
+            if (accessor.max[0] > xMax) {
+                xMax = accessor.max[0];
+            }
 
-        // y
-        if (accessor.min[1] < yMin) {
-            yMin = accessor.min[1];
-        }
-        if (accessor.max[1] > yMax) {
-            yMax = accessor.max[1];
-        }
+            // y
+            if (accessor.min[1] < yMin) {
+                yMin = accessor.min[1];
+            }
+            if (accessor.max[1] > yMax) {
+                yMax = accessor.max[1];
+            }
 
-        // z
-        if (accessor.min[2] < zMin) {
-            zMin = accessor.min[2];
-        }
-        if (accessor.max[2] > zMax) {
-            zMax = accessor.max[2];
-        }
+            // z
+            if (accessor.min[2] < zMin) {
+                zMin = accessor.min[2];
+            }
+            if (accessor.max[2] > zMax) {
+                zMax = accessor.max[2];
+            }
+        });
     }
 
     return [xMax, xMin, yMax, yMin, zMax, zMin];
@@ -199,7 +203,7 @@ function getWorldBoundry(boundry, center) {
         centerLon + lonMax,
         centerLat + latMax,
         centerHeight,
-        centerHeight + (boundry[2]-boundry[3])
+        centerHeight + boundry[2] - boundry[3]
     ];
 }
 
@@ -211,8 +215,8 @@ function getB3dmFilepath(node, outputPath) {
     return path.join(outputPath, getB3dmFilename(node));
 }
 
-function getGeometricError(level, totalLevel) {
-    return 2 ** (totalLevel - level - 2);
+function getGeometricError(level) {
+    return 2 ** (MAX_GEO_ERROR - level);
 }
 
 function gltfToB3dm(gltfPath, b3dmPath) {
@@ -238,7 +242,7 @@ function generateTile(parentTile, node) {
         boundingVolume: {
             region: getWorldBoundry(getObjectBoundry(node.gltf), [latitude, longitude, height])
         },
-        geometricError: getGeometricError(node.level, quadTree.level),
+        geometricError: getGeometricError(node.level),
         refine: "REPLACE",
         content: {
             uri: getB3dmFilename(node)
