@@ -589,3 +589,32 @@ def generate_tree_3d_tiles(input_path, output_path, latitude=25.078503, longitud
         )
 
     return generator_proc
+
+# reset rotation
+def reset_rotation(target):
+    target.rotation_quaternion[0] = 1
+    target.rotation_quaternion[1] = 0
+    target.rotation_quaternion[2] = 0
+    target.rotation_quaternion[3] = 0
+    target.rotation_axis_angle[0] = 0
+    target.rotation_euler[0] = 0
+    target.rotation_euler[1] = 0
+    target.rotation_euler[2] = 0
+
+# convert all GLTF model to b3dm and generate 3D tileset
+def generate_flat_3d_tiles(input_path, output_path, latitude=25.078503, longitude=121.238418, height=0):
+    print("ACTION: convert all GLTF model to b3dm and generate 3D tileset")
+
+    if (not path.exists(input_path)) or (not path.exists(output_path)):
+        print("input file or output directory is not exist")
+        return False
+    
+    NODE_EXEC = "node"
+    GENERATOR_PATH = path.abspath( path.join( path.dirname(__file__), '3dtiles-flat-generator.js') )
+    generator_proc = subprocess.run(
+        [NODE_EXEC, GENERATOR_PATH, "--input", input_path, "--output", output_path, "--latitude", latitude, "--longitude", longitude, "--height", height],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE
+        )
+
+    return generator_proc

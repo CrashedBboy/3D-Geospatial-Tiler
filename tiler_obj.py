@@ -82,24 +82,16 @@ for img in bpy.data.images:
 # funcs.minimize_texture()
 
 # export model into glTF format
-
 root_gltf_path = path.join(absolute_export_directory, 'root.glb')
 
-export_result = funcs.export_gltf(
-    filepath=root_gltf_path,
-    format='GLB',
-    yup=False
-    )
-
+export_result = funcs.export_gltf(filepath=root_gltf_path, format='GLB', yup=False)
 if (export_result == False):
     exit()
 
 # export model into OBJ format as root source
-
 root_obj_path = path.join(absolute_export_directory, 'root.obj')
 
 export_result = funcs.export_obj(filepath=root_obj_path, selected=False, axis_forward="Y", axis_up="Z")
-
 if (export_result == False):
     exit()
 
