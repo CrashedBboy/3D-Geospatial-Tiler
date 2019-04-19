@@ -19,13 +19,13 @@ print("\n---------------------program started---------------------\n")
 # clear all default objects in the scene
 funcs.clear_default()
 
-# IMPORT_MODEL = './models/mountain/mountain.obj'
-IMPORT_MODEL = './models/wood_house/house.obj'
+IMPORT_MODEL = './models/mountain/mountain.obj'
+# IMPORT_MODEL = './models/wood_house/house.obj'
 # IMPORT_MODEL = './models/chocolate_farm/choco.obj'
 
-# EXPORT_DIR = './export/choco'
-EXPORT_DIR = './export/house'
-# EXPORT_DIR = './export/mountain'
+# EXPORT_DIR = './export/choco_from_obj'
+# EXPORT_DIR = './export/house'
+EXPORT_DIR = './export/mountain_from_obj'
 
 LATITUDE = 25.082977
 LONGITUDE = 121.245466

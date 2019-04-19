@@ -464,6 +464,8 @@ def tile_model(root_object, target_level, total_level):
 def refine_texture(tile, original_textures=None):
     print("ACTION: refine texture of model", tile["level"], tile["x"], tile["y"])
 
+    BORDER = 1
+
     gltf_dir = path.dirname(tile['gltf_path'])
 
     if original_textures != None:
@@ -527,6 +529,17 @@ def refine_texture(tile, original_textures=None):
 
         for i in images:
 
+            # expand the filter a little bit
+            expanded_mask = np.zeros(i["mask"].shape, dtype=np.bool)
+            for r in range(i["mask"].shape[0]):
+                for c in range(i["mask"].shape[1]):
+
+                    if i["mask"][r,c] == 1:
+                        for x in range(r-BORDER, r+BORDER+1):
+                            for y in range(c-BORDER, c+BORDER+1):
+                                if x >= 0 and y >= 0 and (x < expanded_mask.shape[0]) and (y < expanded_mask.shape[1]):
+                                    expanded_mask[x,y] = 1
+
             # read image as RGB
             img = Image.open(i["abs_path"]).convert("RGB")
             img_array = np.asarray(img)
@@ -538,9 +551,9 @@ def refine_texture(tile, original_textures=None):
             new_img_array[:,:,:3] = img_array[:,:,:3]
 
             # filtering image by mask
-            new_img_array[:,:,0] = new_img_array[:,:,0] * i["mask"]
-            new_img_array[:,:,1] = new_img_array[:,:,1] * i["mask"]
-            new_img_array[:,:,2] = new_img_array[:,:,2] * i["mask"]
+            new_img_array[:,:,0] = new_img_array[:,:,0] * expanded_mask
+            new_img_array[:,:,1] = new_img_array[:,:,1] * expanded_mask
+            new_img_array[:,:,2] = new_img_array[:,:,2] * expanded_mask
 
             # back to Image from numpy
             new_image = Image.fromarray(new_img_array, "RGB")
