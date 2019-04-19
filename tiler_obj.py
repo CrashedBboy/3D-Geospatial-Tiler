@@ -20,10 +20,11 @@ print("\n---------------------program started---------------------\n")
 funcs.clear_default()
 
 # IMPORT_MODEL = './models/mountain/mountain.obj'
-# IMPORT_MODEL = './models/wood_house/house.obj'
-IMPORT_MODEL = './models/chocolate_farm/choco.obj'
+IMPORT_MODEL = './models/wood_house/house.obj'
+# IMPORT_MODEL = './models/chocolate_farm/choco.obj'
 
-EXPORT_DIR = './export/choco'
+# EXPORT_DIR = './export/choco'
+EXPORT_DIR = './export/house'
 # EXPORT_DIR = './export/mountain'
 
 LATITUDE = 25.082977
@@ -108,7 +109,7 @@ level = funcs.get_proper_level(root_gltf_path)
 if (level == None):
     exit()
 
-level = 3
+# level = 3
 
 all_tiles = []
 
@@ -198,7 +199,7 @@ for tile in all_tiles:
 
 # convert gltf into b3dm & generate 3d tiles
 tileset_path = path.join(absolute_export_directory, '3dtiles')
-generator_proc = funcs.generate_3d_tiles(input_path=lod_data_path, output_path=tileset_path, latitude=str(LATITUDE), longitude=str(LONGITUDE), height=str(HEIGHT))
+generator_proc = funcs.generate_tree_3d_tiles(input_path=lod_data_path, output_path=tileset_path, latitude=str(LATITUDE), longitude=str(LONGITUDE), height=str(HEIGHT))
 print(generator_proc)
 
 if (generator_proc == False) or (generator_proc.returncode == 1):
