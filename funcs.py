@@ -22,6 +22,7 @@ def get_settings(program_dir=path.dirname(__file__)):
 
         return settings
 
+settings = get_settings()
 
 # delete every object (including camera and light source) in the scene
 def clear_default():
@@ -46,7 +47,7 @@ def import_gltf(filepath = None):
             )
 
 # import OBJ model
-def import_obj(filepath = None, axis_forward="Y", axis_up="Z"):
+def import_obj(filepath = None, axis_forward=settings["AXIS_FORWARD"], axis_up=settings["AXIS_UP"]):
     print("ACTION: import OBJ model")
 
     if (filepath == None) or (not path.isfile(filepath)):
@@ -201,7 +202,7 @@ def export_gltf(filepath=None, format='GLTF_SEPARATE', yup=False, selected=False
             filepath = filepath
             )
 
-def export_obj(filepath=None, selected=False, axis_forward="Y", axis_up="Z"):
+def export_obj(filepath=None, selected=False, axis_forward=settings["AXIS_FORWARD"], axis_up=settings["AXIS_UP"]):
     print("ACTION: export to OBJ")
 
     if (filepath == None) or (not path.isdir(path.dirname(filepath))):
@@ -238,8 +239,6 @@ def export_obj(filepath=None, selected=False, axis_forward="Y", axis_up="Z"):
 def get_proper_level(filepath = None):
     print("ACTION: compute model tiling level")
 
-    LEVEL_MAX = 5
-
     if (filepath == None) or (path.exists(filepath) == False):
         print("file", filepath, "not found")
         return None
@@ -250,8 +249,8 @@ def get_proper_level(filepath = None):
         if level < 0:
             level = 0
         
-        if level > LEVEL_MAX:
-            level = LEVEL_MAX
+        if level > settings["LEVEL_MAX"]:
+            level = settings["LEVEL_MAX"]
 
         print("proper tiling level:", level)
         return level
@@ -259,13 +258,10 @@ def get_proper_level(filepath = None):
 # get decimate ratio for models of each level
 def get_decimate_percentage(current_level, total_level):
 
-    DECIMATE_LEVEL_RATIO = 2
-    MINIMUM = 0.2
+    percentage = 1/settings["DECIMATE_LEVEL_RATIO"]**(total_level - current_level)
 
-    percentage = 1/DECIMATE_LEVEL_RATIO**(total_level - current_level)
-
-    if percentage < MINIMUM:
-        percentage = MINIMUM
+    if percentage < settings["DECIMATE_MIN"]:
+        percentage = settings["DECIMATE_MIN"]
     
     return percentage
 
@@ -479,8 +475,6 @@ def tile_model(root_object, target_level, total_level):
 def refine_texture(tile, original_textures=None):
     print("ACTION: refine texture of model", tile["level"], tile["x"], tile["y"])
 
-    BORDER = 1
-
     gltf_dir = path.dirname(tile['gltf_path'])
 
     if original_textures != None:
@@ -550,8 +544,8 @@ def refine_texture(tile, original_textures=None):
                 for c in range(i["mask"].shape[1]):
 
                     if i["mask"][r,c] == 1:
-                        for x in range(r-BORDER, r+BORDER+1):
-                            for y in range(c-BORDER, c+BORDER+1):
+                        for x in range(r-settings["TEX_REFINE_BORDER"], r+settings["TEX_REFINE_BORDER"]+1):
+                            for y in range(c-settings["TEX_REFINE_BORDER"], c+settings["TEX_REFINE_BORDER"]+1):
                                 if x >= 0 and y >= 0 and (x < expanded_mask.shape[0]) and (y < expanded_mask.shape[1]):
                                     expanded_mask[x,y] = 1
 
@@ -594,9 +588,9 @@ def update_texture(tile):
         print("file 'refined_texture_map.json' is not exist")
         return False
     
-    NODE_EXEC = "node"
-    UPDATER_PATH = path.abspath( path.join( path.dirname(__file__), 'texture-updater.js') )
-    texture_updater_proc = subprocess.run([NODE_EXEC, UPDATER_PATH, "--input", tile["gltf_path"]], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    node_exec = settings["NODE_EXEC"]
+    updater_path = settings["TEX_UPDATER"]
+    texture_updater_proc = subprocess.run([node_exec, updater_path, "--input", tile["gltf_path"]], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
     return texture_updater_proc
 
@@ -608,10 +602,10 @@ def generate_tree_3d_tiles(input_path, output_path, latitude=25.078503, longitud
         print("input file or output directory is not exist")
         return False
     
-    NODE_EXEC = "node"
-    GENERATOR_PATH = path.abspath( path.join( path.dirname(__file__), '3dtiles-tree-generator.js') )
+    node_exec = settings["NODE_EXEC"]
+    generator_path = settings["3DTILES_TREE_GENERATOR"]
     generator_proc = subprocess.run(
-        [NODE_EXEC, GENERATOR_PATH, "--input", input_path, "--output", output_path, "--latitude", latitude, "--longitude", longitude, "--height", height],
+        [node_exec, generator_path, "--input", input_path, "--output", output_path, "--latitude", latitude, "--longitude", longitude, "--height", height],
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE
         )
@@ -637,10 +631,10 @@ def generate_flat_3d_tiles(input_path, output_path, latitude=25.078503, longitud
         print("input file or output directory is not exist")
         return False
     
-    NODE_EXEC = "node"
-    GENERATOR_PATH = path.abspath( path.join( path.dirname(__file__), '3dtiles-flat-generator.js') )
+    node_exec = settings["NODE_EXEC"]
+    generator_path = settings["3DTILES_FLAT_GENERATOR"]
     generator_proc = subprocess.run(
-        [NODE_EXEC, GENERATOR_PATH, "--input", input_path, "--output", output_path, "--latitude", latitude, "--longitude", longitude, "--height", height],
+        [node_exec, generator_path, "--input", input_path, "--output", output_path, "--latitude", latitude, "--longitude", longitude, "--height", height],
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE
         )

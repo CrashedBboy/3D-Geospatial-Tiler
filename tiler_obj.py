@@ -31,6 +31,8 @@ LATITUDE = 25.082977
 LONGITUDE = 121.245466
 HEIGHT = 10
 
+settings = funcs.get_settings()
+
 absolute_model_path = path.abspath( path.join(current_dir, IMPORT_MODEL) )
 
 absolute_export_directory = path.abspath( path.join(current_dir, EXPORT_DIR) )
@@ -49,12 +51,8 @@ if import_result == False:
 # join all objects into one
 funcs.join_all()
 
-# triangulate
-# funcs.triangulate()
-
 # check texture images size and downscale them (to save memory)
-TEX_MAX_SIZE = 2048
-funcs.limit_texture(TEX_MAX_SIZE)
+funcs.limit_texture(settings["TEX_MAX_SIZE"])
 
 # create directory to store original textures
 original_tex_dir = path.join(absolute_export_directory, 'original_tex')
@@ -91,7 +89,13 @@ if (export_result == False):
 # export model into OBJ format as root source
 root_obj_path = path.join(absolute_export_directory, 'root.obj')
 
-export_result = funcs.export_obj(filepath=root_obj_path, selected=False, axis_forward="Y", axis_up="Z")
+export_result = funcs.export_obj(
+    filepath=root_obj_path,
+    selected=False,
+    axis_forward=settings["AXIS_FORWARD"],
+    axis_up=settings["AXIS_UP"]
+    )
+
 if (export_result == False):
     exit()
 
@@ -101,7 +105,7 @@ level = funcs.get_proper_level(root_gltf_path)
 if (level == None):
     exit()
 
-# level = 3
+level = 1
 
 all_tiles = []
 
@@ -113,7 +117,7 @@ for l in range(0, level+1):
     funcs.clear_all()
 
     # reload the root model
-    funcs.import_obj(root_obj_path, axis_forward="Y", axis_up="Z")
+    funcs.import_obj(root_obj_path, axis_forward=settings["AXIS_FORWARD"], axis_up=settings["AXIS_UP"])
     root_object = bpy.data.objects[0]
 
     # decimate mesh
@@ -166,9 +170,9 @@ with open(lod_data_path, 'w') as lod_data:
     json.dump(all_tiles, lod_data)
 
 # get uv mapping data
-NODE_EXEC = "node"
-PARSER_PATH = path.abspath( path.join( path.dirname(__file__), 'uv-parser.js') )
-uv_parser_proc = subprocess.run([NODE_EXEC, PARSER_PATH, "--input", lod_data_path], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+node_exec = settings["NODE_EXEC"]
+parser_path = settings["UV_PARSER"]
+uv_parser_proc = subprocess.run([node_exec, parser_path, "--input", lod_data_path], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 # command like: node C:\\Users\\CrashedBboy\\Projects\\blender-3d-tiler\\uv-parser.js --input 'C:\\Users\\CrashedBboy\\Projects\\blender-3d-tiler\\export\\mountain\\lod.json'
 
 print(uv_parser_proc)

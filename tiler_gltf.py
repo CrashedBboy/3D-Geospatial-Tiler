@@ -31,6 +31,8 @@ LATITUDE = 25.082977
 LONGITUDE = 121.245466
 HEIGHT = 10
 
+settings = funcs.get_settings()
+
 absolute_model_path = path.abspath( path.join(current_dir, IMPORT_MODEL) )
 
 absolute_export_directory = path.abspath( path.join(current_dir, EXPORT_DIR) )
@@ -54,8 +56,7 @@ target = bpy.data.objects[0]
 funcs.reset_rotation(target)
 
 # check texture images size and downscale them (to save memory)
-TEX_MAX_SIZE = 2048
-funcs.limit_texture(TEX_MAX_SIZE)
+funcs.limit_texture(settings["TEX_MAX_SIZE"])
 
 # create directory to store original textures
 original_tex_dir = path.join(absolute_export_directory, 'original_tex')
@@ -101,7 +102,7 @@ level = funcs.get_proper_level(root_glb_path)
 if (level == None):
     exit()
 
-# level = 3
+level = 1
 
 all_tiles = []
 
@@ -195,9 +196,9 @@ with open(lod_data_path, 'w') as lod_data:
     json.dump(all_tiles, lod_data)
 
 # get uv mapping data
-NODE_EXEC = "node"
-PARSER_PATH = path.abspath( path.join( path.dirname(__file__), 'uv-parser.js') )
-uv_parser_proc = subprocess.run([NODE_EXEC, PARSER_PATH, "--input", lod_data_path], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+node_exec = settings["NODE_EXEC"]
+parser_path = settings["UV_PARSER"]
+uv_parser_proc = subprocess.run([node_exec, parser_path, "--input", lod_data_path], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 # command like: node C:\\Users\\CrashedBboy\\Projects\\blender-3d-tiler\\uv-parser.js --input 'C:\\Users\\CrashedBboy\\Projects\\blender-3d-tiler\\export\\mountain\\lod.json'
 
 print(uv_parser_proc)
