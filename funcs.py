@@ -8,6 +8,21 @@ import json
 import subprocess
 import shutil
 
+# get program setting constants
+def get_settings(program_dir=path.dirname(__file__)):
+
+    if not program_dir:
+        return False
+    
+    settings_filepath = path.abspath(path.join(program_dir, "settings.json"))
+    print(settings_filepath)
+
+    with open(settings_filepath, 'r') as reader:
+        settings = json.load(reader)
+
+        return settings
+
+
 # delete every object (including camera and light source) in the scene
 def clear_default():
     print("ACTION: clear all default objects(cube, lamp, camera) in the scene.")

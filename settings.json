@@ -1,0 +1,19 @@
+{
+    "TEX_MAX_SIZE": 2048,
+    "TEX_REFINE_BORDER": 1,
+
+    "AXIS_FORWARD": "Y",
+    "AXIS_UP": "Z",
+
+    "LEVEL_MIN": 0,
+    "LEVEL_MAX": 5,
+
+    "DECIMATE_LEVEL_RATIO": 2,
+    "DECIMATE_MIN": 0.2,
+
+    "NODE_EXEC": "C:\\Program Files\\nodejs\\node.exe",
+    "UV_PARSER": "C:\\Users\\CrashedBboy\\Projects\\blender-3d-tiler\\uv-parser.js",
+    "TEX_UPDATER": "C:\\Users\\CrashedBboy\\Projects\\blender-3d-tiler\\texture-updater.js",
+    "3DTILES_TREE_GENERATOR": "C:\\Users\\CrashedBboy\\Projects\\blender-3d-tiler\\3dtiles-tree-generator.js",
+    "3DTILES_FLAT_GENERATOR": "C:\\Users\\CrashedBboy\\Projects\\blender-3d-tiler\\3dtiles-flat-generator.js",
+}
