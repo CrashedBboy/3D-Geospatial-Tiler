@@ -170,14 +170,10 @@ with open(lod_data_path, 'w') as lod_data:
     json.dump(all_tiles, lod_data)
 
 # get uv mapping data
-node_exec = settings["NODE_EXEC"]
-parser_path = settings["UV_PARSER"]
-uv_parser_proc = subprocess.run([node_exec, parser_path, "--input", lod_data_path], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-# command like: node C:\\Users\\CrashedBboy\\Projects\\blender-3d-tiler\\uv-parser.js --input 'C:\\Users\\CrashedBboy\\Projects\\blender-3d-tiler\\export\\mountain\\lod.json'
-
+uv_parser_proc = funcs.parse_uv(lod_data_path=lod_data_path)
 print(uv_parser_proc)
 
-if (uv_parser_proc.returncode == 1):
+if (uv_parser_proc == False) or (uv_parser_proc.returncode == 1):
     print("failed to parse UV mapping data from GLTF model, exit")
     exit()
 

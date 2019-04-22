@@ -471,6 +471,19 @@ def tile_model(root_object, target_level, total_level):
     bpy.ops.object.mode_set(mode='OBJECT')
     return tile_queue
 
+# parsing glTF UV coordinates data
+def parse_uv(lod_data_path=None):
+    print("ACTION: parse glTF UV coordinates data accroding to file list:", lod_data_path)
+
+    if not path.exists(lod_data_path):
+        return False
+    else:
+        node_exec = settings["NODE_EXEC"]
+        parser_path = settings["UV_PARSER"]
+        uv_parser_proc = subprocess.run([node_exec, parser_path, "--input", lod_data_path], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+        return uv_parser_proc
+
 # remove unmapped part of texture images and compress them
 def refine_texture(tile, original_textures=None):
     print("ACTION: refine texture of model", tile["level"], tile["x"], tile["y"])
