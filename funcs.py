@@ -32,7 +32,7 @@ def clear_default():
 
 # import GLTF model
 def import_gltf(filepath = None):
-    print("ACTION: import GLTF model")
+    print("ACTION: import GLTF model:", filepath)
 
     if (filepath == None) or (not path.isfile(filepath)):
         print("invalid filepath")
@@ -48,7 +48,7 @@ def import_gltf(filepath = None):
 
 # import OBJ model
 def import_obj(filepath = None, axis_forward=settings["AXIS_FORWARD"], axis_up=settings["AXIS_UP"]):
-    print("ACTION: import OBJ model")
+    print("ACTION: import OBJ model:", filepath)
 
     if (filepath == None) or (not path.isfile(filepath)):
         print("invalid filepath")
@@ -68,6 +68,16 @@ def import_obj(filepath = None, axis_forward=settings["AXIS_FORWARD"], axis_up=s
             axis_forward = axis_forward,
             axis_up = axis_up
             )
+
+# import COLLADA model
+def import_collada(filepath=None):
+    print("ACTION: import COLLADA model:", filepath)
+
+    if (filepath == None) or (not path.isfile(filepath)):
+        print("invalid filepath")
+        return False
+    else:
+        return bpy.ops.wm.collada_import(filepath=filepath)
 
 # join all object into one
 def join_all():
@@ -177,7 +187,7 @@ def minimize_texture():
 # export model in gltf format
 # note: Blender under version 2.8 does not support exporting gltf by default
 def export_gltf(filepath=None, format='GLTF_SEPARATE', yup=False, selected=False):
-    print("ACTION: export to GLTF")
+    print("ACTION: export to GLTF:", filepath)
 
     if (filepath == None) or (not path.isdir(path.dirname(filepath))):
         print("Invalid output path")
@@ -203,7 +213,7 @@ def export_gltf(filepath=None, format='GLTF_SEPARATE', yup=False, selected=False
             )
 
 def export_obj(filepath=None, selected=False, axis_forward=settings["AXIS_FORWARD"], axis_up=settings["AXIS_UP"]):
-    print("ACTION: export to OBJ")
+    print("ACTION: export to OBJ:", filepath)
 
     if (filepath == None) or (not path.isdir(path.dirname(filepath))):
         print("Invalid output path")
@@ -232,6 +242,24 @@ def export_obj(filepath=None, selected=False, axis_forward=settings["AXIS_FORWAR
             path_mode='COPY',
             axis_forward=axis_forward,
             axis_up=axis_up
+            )
+
+def export_collada(filepath=None, selected=False):
+    print("ACTION: export to COLLADA:", filepath)
+
+    if (filepath == None) or (not path.isdir(path.dirname(filepath))):
+        print("Invalid output path")
+        return False
+    else:
+        return bpy.ops.wm.collada_export(
+            filepath=filepath,
+            check_existing=False,
+            selected=selected,
+            include_children=False,
+            include_animations=False,
+            include_all_actions=False,
+            use_texture_copies=True,
+            triangulate=False,
             )
 
 # get model's information
