@@ -15,5 +15,7 @@
     "UV_PARSER": "C:\\Users\\CrashedBboy\\Projects\\blender-3d-tiler\\uv-parser.js",
     "TEX_UPDATER": "C:\\Users\\CrashedBboy\\Projects\\blender-3d-tiler\\texture-updater.js",
     "3DTILES_TREE_GENERATOR": "C:\\Users\\CrashedBboy\\Projects\\blender-3d-tiler\\3dtiles-tree-generator.js",
-    "3DTILES_FLAT_GENERATOR": "C:\\Users\\CrashedBboy\\Projects\\blender-3d-tiler\\3dtiles-flat-generator.js"
+    "3DTILES_FLAT_GENERATOR": "C:\\Users\\CrashedBboy\\Projects\\blender-3d-tiler\\3dtiles-flat-generator.js",
+
+    "PYPI_PACKAGE_PATH": "C:\\Users\\CrashedBboy\\Projects\\pyenv\\3d-tiler\\Lib\\site-packages"
 }

@@ -1,5 +1,7 @@
 import sys
 import os
+from os import path
+import json
 
 # get current script direcotry
 current_dir = os.path.dirname(__file__)
@@ -8,9 +10,22 @@ current_dir = os.path.dirname(__file__)
 if not current_dir in sys.path:
    sys.path.append(current_dir)
 
+# get program setting constants
+settings_filepath = path.abspath(path.join(path.dirname(__file__), "settings.json"))
+
+settings = None
+
+with open(settings_filepath, 'r') as reader:
+    settings = json.load(reader)
+
+pypi_packages_path = settings['PYPI_PACKAGE_PATH']
+
+if (pypi_packages_path != None):
+    
+    if not pypi_packages_path in sys.path:
+        sys.path.append(pypi_packages_path)
+
 import bpy
-from os import path
-import json
 import subprocess
 import funcs
 

@@ -15,7 +15,6 @@ def get_settings(program_dir=path.dirname(__file__)):
         return False
     
     settings_filepath = path.abspath(path.join(program_dir, "settings.json"))
-    print(settings_filepath)
 
     with open(settings_filepath, 'r') as reader:
         settings = json.load(reader)
