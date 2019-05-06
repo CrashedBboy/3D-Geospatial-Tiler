@@ -4,6 +4,7 @@ import bmesh
 import math
 import numpy as np
 from PIL import Image, ImageDraw
+import cv2
 import json
 import subprocess
 import shutil
@@ -171,7 +172,7 @@ def export_texture(image=None, filepath=None):
     pixels = pixels[:,:, 0:target_channels]
     pixels = np.flip(pixels, 0)
 
-    Image.fromarray(pixels).save(filepath, 'JPEG')
+    cv2.imwrite(filepath, cv2.cvtColor(pixels, cv2.COLOR_RGB2BGR), [cv2.IMWRITE_JPEG_QUALITY, 90])
 
     pixels = None
 
@@ -544,8 +545,7 @@ def refine_texture(tile, original_textures=None):
             img_basename = map['image']['uri'].split('/')[-1].split('.' + img_ext)[0]
 
             # read image as RGB
-            img = Image.open(abs_img_path).convert("RGB")
-            img_array = np.asarray(img)
+            img_array = cv2.cvtColor(cv2.imread(abs_img_path), cv2.COLOR_BGR2RGB)
             img_width, img_height = img_array.shape[1], img_array.shape[0]
 
             # create new image ("1-bit pixels, black and white", (width, height), "default color")
@@ -562,7 +562,6 @@ def refine_texture(tile, original_textures=None):
             
             mask = np.array(mask_img, dtype=np.bool)
 
-            img.close()
             mask_img.close()
 
             # search for image name in array
@@ -590,8 +589,7 @@ def refine_texture(tile, original_textures=None):
                                     expanded_mask[x,y] = 1
 
             # read image as RGB
-            img = Image.open(i["abs_path"]).convert("RGB")
-            img_array = np.asarray(img)
+            img_array = cv2.cvtColor(cv2.imread(i["abs_path"]), cv2.COLOR_BGR2RGB)
 
             # assemble new image (uint8: 0-255)
             new_img_array = np.empty(img_array.shape, dtype='uint8')
@@ -605,11 +603,11 @@ def refine_texture(tile, original_textures=None):
             new_img_array[:,:,2] = new_img_array[:,:,2] * expanded_mask
 
             # back to Image from numpy
-            new_image = Image.fromarray(new_img_array, "RGB")
-            new_image.save(path.abspath( path.join(path.dirname(i["abs_path"]), i["basename"] + '_refined.jpg') ), 'JPEG', quality = jpeg_quality)
-
-            img.close()
-            new_image.close()
+            cv2.imwrite(
+                path.abspath( path.join(path.dirname(i["abs_path"]), i["basename"] + '_refined.jpg') ),
+                cv2.cvtColor(new_img_array, cv2.COLOR_RGB2BGR),
+                [cv2.IMWRITE_JPEG_QUALITY, jpeg_quality]
+                )
 
             # save old <--> new texture name mapping
             img_corresponding.append({"old": i["rel_path"], "new": i["rel_path"].replace(i["basename"] + '.' + i["ext"], i["basename"] + '_refined.jpg')})
