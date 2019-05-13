@@ -37,6 +37,11 @@ jsonList.forEach((model, i) => {
 
     gltf.scenes[gltf.scene].nodes.forEach((nodeIndex) => {
         let node = gltf.nodes[nodeIndex];
+
+        if (!node.mesh) {
+            return;
+        }
+
         let nodeMesh = gltf.meshes[node.mesh];
         let nodeMeshPrimitives = nodeMesh.primitives;
 

@@ -527,6 +527,9 @@ def refine_texture(tile, original_textures=None):
 
     jpeg_quality = math.ceil(85 / (1.414)**(tile["total_level"] - tile["level"]))
 
+    if not path.exists(abs_uv_map):
+        return
+
     with open(abs_uv_map) as file:
         maps = json.load(file)
 
@@ -623,8 +626,7 @@ def update_texture(tile):
     gltf_dir = path.dirname(tile["gltf_path"])
 
     if (not path.exists(path.join(gltf_dir, "refined_texture_map.json"))):
-        print("file 'refined_texture_map.json' is not exist")
-        return False
+        return True
     
     node_exec = settings["NODE_EXEC"]
     updater_path = settings["TEX_UPDATER"]

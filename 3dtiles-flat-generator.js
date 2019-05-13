@@ -85,7 +85,13 @@ function getRefinedGltfPath(gltfpath) {
     let dir = path.dirname(gltfpath);
     let basename = path.basename(gltfpath);
 
-    return path.join(dir, 'refined_' + basename);
+    let hasPrefix = path.join(dir, 'refined_' + basename);
+
+    if (fs.existsSync(hasPrefix)) {
+        return hasPrefix;
+    } else {
+        return gltfpath;
+    }
 }
 
 // passed in degrees
@@ -111,6 +117,10 @@ function getObjectBoundry(gltfPath) {
     let yMin = Number.POSITIVE_INFINITY;
     let zMax = Number.NEGATIVE_INFINITY;
     let zMin = Number.POSITIVE_INFINITY;
+
+    if (!gltf.meshes) {
+        return [xMax, xMin, yMax, yMin, zMax, zMin];
+    }
 
     for (let i = 0; i < gltf.meshes.length; i++) {
         let m = gltf.meshes[i];
